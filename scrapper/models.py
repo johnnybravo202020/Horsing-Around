@@ -1,5 +1,5 @@
 from django.db import models
-from .managers import RaceResultManager
+
 
 class RaceResult(models.Model):
     horse_name = models.TextField()
@@ -33,3 +33,6 @@ class RaceResult(models.Model):
                                                                                     self.handicap,
                                                                                     self.track_type,
                                                                                     self.distance)
+
+    def __eq__(self, other):
+        return self.horse_name == other.horse_name and self.horse_id == other.horse_id and self.result == other.result and self.horse_age == other.horse_age and self.horse_father_id == other.horse_father_id and self.horse_mother_id == other.horse_mother_id and self.horse_weight == other.horse_weight and self.jockey_id == other.jockey_id and self.owner_id == other.owner_id and self.trainer_id == other.trainer_id and self.time == other.time and self.handicap == other.handicap and self.track_type == other.track_type and self.distance == other.distance and self.city == other.city
