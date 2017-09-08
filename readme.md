@@ -14,10 +14,31 @@ Each day there are races in at least two cities and in those cities there are at
 ### Technical Summary
 The entire project planned around Python and [Django](https://www.djangoproject.com). Suggested interpreter is [Anaconda](https://www.anaconda.com) 3.5 since it comes with ML and DL frameworks. Please be mindful of Django being only supported for version 3.5. For scrappers [BS](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) will be used. For future [Celery](http://www.celeryproject.org/) is going to be used in order to create workers that will scrap the statics automatically.
 
+## Quick Guide
+It is still on development. But in order to try, open a new terminal or command console from the project directory. 
+Make 
+sure 
+you run the tests for to make sure scrappers are working. Run `python manage.py test` and if you see "OK" then run 
+`pytong manage.py shell` in order to activate the django shell. 
+
+From now on we can write python code. For now you can only get the results of specific day and city. 
+
+Import the RaceResult model
+```python
+    from scrapper.models import RaceResult
+```
+Now we can call the scrap method from the model. 
+```python
+    races = RaceResult.object.scrap()
+    
+    print(racees)
+```
+This will return a list of races contains the outcome of the 
+respected race. 
 
 ## Road Map
-* Write tests for scrappers
-* Develop the scrappers
+* Write tests for scrappers(Ongoing)
+* Develop the scrappers(Ongoing)
 * Start forecasting with regression and create HTML pages for display
 * Create a worker to scrap races automatically in order to save them to database 
 
