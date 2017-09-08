@@ -31,7 +31,7 @@ Now we can call the scrap method from the model.
 ```python
     races = RaceResult.object.scrap()
     
-    print(racees)
+    print(races)
 ```
 This will return a list of races contains the outcome of the 
 respected race. 
