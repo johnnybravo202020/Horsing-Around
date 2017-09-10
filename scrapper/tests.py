@@ -1,7 +1,9 @@
 from django.test import TestCase
 from . models import (RaceResult, RaceResultTestData)
-from . scrappers.result_row_scrapper import ResultRowScrapper
+from . scrappers import ResultRowScrapper, City, RaceDayScrapper
 from bs4 import BeautifulSoup
+import datetime
+from HorsingAround.string_util import turkish_chars_to_latin_chars
 
 
 class ResultRowScrapperTestCase(TestCase):
@@ -23,7 +25,7 @@ class ResultRowScrapperTestCase(TestCase):
         scrapped_result.city = recorded_result.city
         scrapped_result.distance = recorded_result.distance
 
-        # And html_row property is not a part of actual model
+        # Delete the html_row property which is not a part of the actual model
         delattr(recorded_result, "html_row")
 
         self.assertEqual(recorded_result, scrapped_result)
@@ -31,7 +33,7 @@ class ResultRowScrapperTestCase(TestCase):
 
 class RaceDayScrapperTestCase(TestCase):
     def test_can_scrap_race_day(self):
-        scraped_races = RaceResult.objects.scrap()
+        scraped_races = RaceResult.objects.scrap(City.Bursa, datetime.date(2017, 7, 3))
         recorded_results = RaceResultTestData.objects.all()
         for race in scraped_races:
             for scrapped_result in race:
@@ -40,6 +42,31 @@ class RaceDayScrapperTestCase(TestCase):
                 scrapped_result.id = recorded_result.id
                 self.assertEqual(recorded_result, scrapped_result)
 
+    def assert_city(self, city, date):
+        '''
+        Helper method to determine if correct city has been gotten from the scrapper
+        :param city: one case from enum City which will determine which city to get html for
+        :param date: date of the desired race
+        '''
+        # Download the source of the html page
+        html = RaceDayScrapper(city, date).html
+
+        # Get the Soap object for easy tag search
+        soup = BeautifulSoup(html)
+
+        # Get the name of the city in the html
+        city_in_html = soup.find("div", class_='program').get('id').lower()
+
+        # It might contain some non-ascii characters since it is Turkish
+        city_in_html = turkish_chars_to_latin_chars(city_in_html)
+
+        self.assertEqual(city_in_html, city.name.lower())
+
+    def test_can_get_source_from_city_bursa(self):
+        self.assert_city(City.Bursa, datetime.date(2017, 7, 3))
+
+    def test_can_get_source_from_city_elazig(self):
+        self.assert_city(City.Elazig, datetime.date(2017, 7, 3))
 
 class RaceResultTestCase(TestCase):
     def test_str(self):

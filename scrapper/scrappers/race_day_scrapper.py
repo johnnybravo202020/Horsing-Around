@@ -6,7 +6,21 @@ from bs4 import BeautifulSoup
 import urllib.request
 from .result_row_scrapper import ResultRowScrapper
 import datetime
+from enum import Enum
 
+
+class City(Enum):
+    """
+    Cities and they are respected ids determined by TJK.org for their query parameters
+    """
+    Izmir = 2
+    Istanbul = 3
+    Bursa = 4
+    Adana = 1
+    Ankara = 5
+    Kocaeli = 9
+    Urfa = 6
+    Elazig = 7
 
 class RaceDayScrapper:
     """
@@ -15,13 +29,23 @@ class RaceDayScrapper:
     """
     race_divs = ''
 
-    def __init__(self):
+    def __init__(self, city, date):
+        # Assigning them to properties so we can get them when we need them in order to save them to the model
+        self.city = city
+        self.date = date
+
+        # Creating the url
+        # {0} is city id, {1} is city name
+        url_base = 'http://www.tjk.org/TR/YarisSever/Info/Sehir/GunlukYarisSonuclari?SehirId={' \
+                   '0}&QueryParameter_Tarih=03%2F7%2F2017&SehirAdi={1}'
+
+        actual_url = url_base.format(city.value, city.name)
+
         # Get the html of race results of a particular date and city
-        html = urllib.request.urlopen(
-            'http://www.tjk.org/TR/YarisSever/Info/Sehir/GunlukYarisSonuclari?SehirId=4&QueryParameter_Tarih=03%2F7%2F2017&SehirAdi=Bursa').read()
+        self.html = urllib.request.urlopen(actual_url).read()
 
         # Get the Soap object for easy scraping
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(self.html)
 
         # Get the div containing all the races
         race_div = soup.find_all("div", class_='races-panes')[0]
@@ -29,6 +53,10 @@ class RaceDayScrapper:
         # Getting the one level inner divs which contains each race. Recursive is set to false because we don't want
         # to go the the inner child of those divs. Just trying to stay on the first level
         self.race_divs = race_div.find_all("div", recursive=False)
+
+    @classmethod
+    def from_date_values(cls, city, year, month, day):
+        return cls(city, datetime.date(year, month, day))
 
     def get(self):
 

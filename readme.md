@@ -1,5 +1,5 @@
 # Horsing Around
-*Scraps data from the official web site of the horse races run in Turkey in order to forecast the race results.*
+*Scraps data from the official web site of the horse races run in Turkey parameterr to forecast the race results.*
 
 Official Web site of Turkish Jokey Organization:[Turkish](http://www.tjk.org/)|[English](http://www.tjk.org/EN/YarisSever/YarisSever/Index)
 
@@ -21,7 +21,7 @@ sure
 you run the tests for to make sure scrappers are working. Run `python manage.py test` and if you see "OK" then run 
 `pytong manage.py shell` in order to activate the django shell. 
 
-From now on we can write python code. For now you can only get the results of specific day and city. 
+From now on we can write python code. For now you can only define which city you want to get at date 7/3/2017
 
 Import the RaceResult model
 ```python
@@ -29,7 +29,11 @@ Import the RaceResult model
 ```
 Now we can call the scrap method from the model. 
 ```python
-    races = RaceResult.object.scrap()
+    from scrapper.scrappers import City
+    import datetime
+    
+    # It requires a date parameter but it is not implemented yet
+    races = RaceResult.object.scrap(City.Bursa, datetime.date(2017, 7, 3))
     
     print(races)
 ```

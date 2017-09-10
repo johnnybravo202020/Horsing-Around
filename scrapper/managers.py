@@ -15,11 +15,11 @@ class RaceResultTestDataManager(models.Manager):
 
 
 class RaceResultManager(models.Manager):
-    def scrap(self):
+    def scrap(self, city, date):
         """
         Scraps data from TJK.org
         :return: Will return the results of a hard-coded url from a past race
         """
-        scrapper = RaceDayScrapper()
+        scrapper = RaceDayScrapper(city, date)
         return scrapper.get()
 
