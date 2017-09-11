@@ -7,6 +7,7 @@ import urllib.request
 from .result_row_scrapper import ResultRowScrapper
 import datetime
 from enum import Enum
+from scrapper import models
 
 
 class City(Enum):
@@ -29,20 +30,29 @@ class RaceDayScrapper:
     """
     race_divs = ''
 
-    def __init__(self, city, date):
-        # Assigning them to properties so we can get them when we need them in order to save them to the model
+    def __init__(self, city, date, html=''):
         self.city = city
         self.date = date
 
-        # Creating the url
-        # {0} is city id, {1} is city name
-        url_base = 'http://www.tjk.org/TR/YarisSever/Info/Sehir/GunlukYarisSonuclari?SehirId={' \
-                   '0}&QueryParameter_Tarih=03%2F7%2F2017&SehirAdi={1}'
+        if not html:
+            # Means we have to download the html source our selves
+            # Creating the url
+            # {0} is city id, {1} is city name
+            self.url = 'http://www.tjk.org/TR/YarisSever/Info/Sehir/GunlukYarisSonuclari?SehirId={' \
+                       '0}&QueryParameter_Tarih={2}&SehirAdi={1}'
 
-        actual_url = url_base.format(city.value, city.name)
+            # Feeding the city information to url
+            self.url = self.url.format(city.value, city.name, '{0}')
 
-        # Get the html of race results of a particular date and city
-        self.html = urllib.request.urlopen(actual_url).read()
+            # Feeding the date information to url by formatting the date to appropriate string
+            # Ex: '03-07-2017'
+            date_format = '{0}-{1}-{2}'.format('%d', '%m', '%Y')
+            self.url = self.url.format(date.strftime(date_format))
+
+            # Get the html of the page that contains the results
+            self.html = urllib.request.urlopen(self.url).read()
+        else:
+            self.html = html
 
         # Get the Soap object for easy scraping
         soup = BeautifulSoup(self.html)
@@ -58,14 +68,14 @@ class RaceDayScrapper:
     def from_date_values(cls, city, year, month, day):
         return cls(city, datetime.date(year, month, day))
 
-    def get(self):
+    @classmethod
+    def from_test_data_model(cls, model):
+        return cls(City(model.city_id), model.date, model.html_source)
+
+    def get(self, is_test=False):
 
         # Create an empty list to hold each race
         races = []
-
-        # Date and city is the same for all races in the html page
-        race_date = datetime.date(2017, 7, 3)
-        city = 'Bursa'
 
         # Process each race
         for rDiv in self.race_divs:
@@ -106,14 +116,14 @@ class RaceDayScrapper:
                 scrapper = ResultRowScrapper(row)
 
                 # Get the result model with scrapped data in it
-                model = scrapper.get()
+                model = scrapper.get(is_test)
 
                 # Assign the values that are specific to this race
                 model.track_type = track_type
                 model.distance = int(distance)
                 model.race_id = race_id
-                model.city = city
-                model.race_date = race_date
+                model.city = self.city.name
+                model.race_date = self.date
 
                 # Append the model to the result list
                 results.append(model)
@@ -121,5 +131,12 @@ class RaceDayScrapper:
             # This point we have all the results of one race we can append it to the race list
             races.append(results)
 
-        # We got all the information about the race day in the given city and date We can return the races list now
+        # We got all the information about the race day in the given city and date. We can return the races list now
         return races
+
+    def get_test_data_model(self):
+        return models.RaceDayTestData(
+            html_source=self.html,
+            url=self.url,
+            city=self.city.name,
+            date=self.date)

@@ -1,2 +1,2 @@
 from .actual import RaceResult
-from .test import RaceResultTestData
+from .test import RaceResultTestData, RaceDayTestData

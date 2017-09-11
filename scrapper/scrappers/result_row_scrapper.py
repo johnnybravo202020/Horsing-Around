@@ -16,7 +16,7 @@ class ResultRowScrapper:
     def __init__(self, html_row):
         self.row = html_row
 
-    def get(self):
+    def get(self, is_test=False):
         from scrapper.models import RaceResult
         result = RaceResult()
 
@@ -72,6 +72,12 @@ class ResultRowScrapper:
         # Hc and Hk are two different handicap types that is possible
         result.handicap = int(self.get_column_content("Hc") or self.get_column_content("Hk"))
 
+        # If we are collecting this data for testing purposes we need to return to correct model which is
+        # RaceResultTestData
+        if is_test:
+            from scrapper.models import RaceResultTestData
+            result = RaceResultTestData.from_actual(result, html_row=self.row)
+
         return result
 
     def get_column(self, col_name):
@@ -96,7 +102,12 @@ class ResultRowScrapper:
         :param _type: The content of the column where the according type of manager is
         :return: id of the desired manager either Jockey, Owner or Trainer
         """
-        return int(self.get_id_from_a(self.get_column(_type.value).find('a', href=True)))
+        try:
+            # Sometimes the info is not there, so we have to be safe
+            return int(self.get_id_from_a(self.get_column(_type.value).find('a', href=True)))
+        except:
+            # Info is not there, mark it as missing
+            return -1
 
     @staticmethod
     def get_id_from_a(a):

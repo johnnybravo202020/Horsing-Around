@@ -1,5 +1,6 @@
 from django.db import models
 from HorsingAround.collections import OrderedClassMembers
+import copy
 
 
 class BaseRaceResult(models.Model):
@@ -26,14 +27,14 @@ class BaseRaceResult(models.Model):
     city = models.CharField(max_length=200)
 
     def get_pure_dict(self, *remove_keys):
-        _dict = self.__dict__
+        # We need to have a separate dictionary because we are going to pop keys and we need to avoid changing the
+        # original object
+        _dict =  copy.deepcopy(self.__dict__)
         for key in remove_keys:
             _dict.pop(key)
 
         try:
             _dict.pop('_state')
-
-            # This is only record id, it is in irrelevant
         except KeyError:
             # No need to handle since we generally do not care about _state
             pass
