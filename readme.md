@@ -18,7 +18,7 @@ The entire project planned around Python and [Django](https://www.djangoproject.
 ## Quick Guide
 It is still on development. But in order to try, open a new terminal or command console from the project directory. 
 Make sure you run the tests for to make sure scrappers are working. Run `python manage.py test` and if you see "OK" 
-then run `pytong manage.py shell` in order to activate the django shell. 
+then run `python manage.py shell` in order to activate the django shell. 
 
 From now on we can write python code.
 
