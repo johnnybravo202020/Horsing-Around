@@ -1,7 +1,7 @@
 from django.db import models
 from random import randint
 from .scrappers import RaceDayScrapper
-
+import datetime
 
 class BaseTestModelManager(models.Manager):
     def get_random(self):
@@ -18,13 +18,26 @@ class RaceResultTestDataManager(BaseTestModelManager):
 
 
 class RaceResultManager(models.Manager):
-    def scrap(self, city, date):
+    def scrap_by_date(self, city, date):
         """
-        Scraps data from TJK.org
-        :return: Will return the results of a hard-coded url from a past race
+        Scraps the results of the supplied city and date
+        :param city: City which the race happened
+        :param date: datetime object for the desired race
+        :return: Returns the results of the desired race
         """
         scrapper = RaceDayScrapper(city, date)
         return scrapper.get()
+
+    def scrap(self, city, year, month, day):
+        """
+        Scraps the results of the supplied city and date values
+        :param city: City which the race happened
+        :param year: The year of the wanted race
+        :param month: The month of the wanted race
+        :param day: The day of the wanted race
+        :return: Returns the results of the desired race
+        """
+        return self.scrap_by_date(city, datetime.datetime(year, month, day))
 
 
 class HTMLSourceTestDataManager(BaseTestModelManager):

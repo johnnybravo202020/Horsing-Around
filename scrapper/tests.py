@@ -12,7 +12,7 @@ class ResultRowScrapperTestCase(TestCase):
         recorded_result = RaceResultTestData.objects.get_random()
 
         # Initializing a soup object from html in order to parse more
-        soup_object = BeautifulSoup(recorded_result.html_row)
+        soup_object = BeautifulSoup(recorded_result.html_row, "lxml")
 
         scrapper = ResultRowScrapper(soup_object)
         scrapped_result = scrapper.get()
@@ -59,7 +59,7 @@ class RaceDayScrapperTestCase(TestCase):
         html = RaceDayScrapper(city, date).html
 
         # Get the Soap object for easy tag search
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, "lxml")
 
         # Get the name of the city in the html
         city_in_html = soup.find("div", class_='program').get('id').lower()
