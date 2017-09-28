@@ -1,3 +1,3 @@
-from .result_row_scrapper import ResultRowScrapper
-from .race_day_scrapper import RaceDayScrapper, City
+from .row import ResultRowScrapper
+from .race_day import ResultScrapper, FixtureScrapper, City
 from . import util

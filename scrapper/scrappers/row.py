@@ -12,7 +12,20 @@ class ManagerType(Enum):
     Trainer = 'AntronorAdi'
 
 
-class ResultRowScrapper:
+class BaseRowScrapper:
+    """
+    Class name used for horses' name in TJK's site, after "gunluk-GunlukYarisProgrami-"
+    Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi">
+    """
+    horse_name_class_name = ''
+
+    """
+    Beginning of the class name used for each row in the tables, Fixture and Result tables has it differently
+    Ex for fixture: <td class="gunluk-GunlukYarisProgrami-AtAdi">
+    Ex for result: <td class="gunluk-GunlukYarisSonuclari-AtAdi3">
+    """
+    td_class_base = ''
+
     def __init__(self, html_row):
         self.row = html_row
 
@@ -32,9 +45,9 @@ class ResultRowScrapper:
 
         # The third column in the table contains the name of the horse and a link that goes to that horse's page.
         # Also the link will have the id of the horse and the abbreviations that come after the name which tells
-        # status information, for example whether the horse will run with a eye patch and etc.
+        # status information, for example whether the horse will run with an eye patch and etc.
         # More info is here: http://www.tjk.org/TR/YarisSever/Static/Page/Kisaltmalar
-        horse_name_html = self.get_column("AtAdi3").find('a')
+        horse_name_html = self.get_column(self.horse_name_class_name).find('a')
 
         # first element is the name it self, others are the abbreviations, so we get the first and assign it as name
         # after trimming a little. The reason of the trim is to get rid of the number in the parenthesis
@@ -85,7 +98,7 @@ class ResultRowScrapper:
         :param col_name: The value after the gunluk-GunlukYarisSonuclari-{0}
         :return: The content in the column(td) that has a class name starting with gunluk-GunlukYarisSonuclari-
         """
-        return self.row.find("td", class_="gunluk-GunlukYarisSonuclari-{0}".format(col_name))
+        return self.row.find("td", class_="{0}{1}".format(self.td_class_base, col_name))
 
     def get_column_content(self, col_name):
         """
@@ -124,3 +137,19 @@ class ResultRowScrapper:
         id_ = id_.split("&")[0]
 
         return id_
+
+
+class FixtureRowScrapper(BaseRowScrapper):
+    """
+    Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi">
+    """
+    horse_name_class_name = "AtAdi"
+    td_class_base = 'gunluk-GunlukYarisProgrami-'
+
+
+class ResultRowScrapper(BaseRowScrapper):
+    """
+    Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi3">
+    """
+    horse_name_class_name = "AtAdi3"
+    td_class_base = 'gunluk-GunlukYarisSonuclari-'

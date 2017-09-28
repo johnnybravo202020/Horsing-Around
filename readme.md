@@ -1,6 +1,8 @@
 # Horsing Around
 *Scraps data from the official web site of the horse races run in Turkey, in order to forecast the race results.*
 
+![alt text][banner]
+
 **Current Functionalty:**
 * Can scrap the results of a given date and city
 
@@ -29,6 +31,12 @@ Open a new terminal from the project directory.
 ##### Windows
 Open a new command prompt as administrator from the project directory.  
 `pip install -r requirements.txt`
+
+### Testing
+There are two tpyes of tests, first one is local and the other one is web tests. Local tests use the data in the local sqlite database, and web tests are done to make sure the web site is not updated and data can still scrapped correctly. Local tests are really fast but web tests are not so much since they download html's from the web.
+
+##### Local: `python manage.py test scrapper.tests.local` 
+##### Web  : `python manage.py test scrapper.tests.web` 
 
 ### Running
 Make sure you run the tests for to make sure scrappers are working. Run `python manage.py test --exe` and if you see "OK" 
@@ -66,3 +74,6 @@ Now, in order to see the results, we can do `print(races)`
 ## Eager to help?
 Everybody is welcome for contribution. The ultimate reason for open-sourcing is to exceed the potential of this 
 project and get the maximum accuracy, this cannot be done alone. Even small advices and suggestions are appreciated.
+
+
+[banner]: github/banner.jpg "Horsing Around Banner"

@@ -4,7 +4,7 @@
 
 from bs4 import BeautifulSoup
 import urllib.request
-from .result_row_scrapper import ResultRowScrapper
+from .row import FixtureRowScrapper, ResultRowScrapper
 import datetime
 from enum import Enum
 from scrapper import models
@@ -12,7 +12,7 @@ from scrapper import models
 
 class City(Enum):
     """
-    Cities and they are respected ids determined by TJK.org for their query parameters
+    Cities and their are respected ids determined by TJK.org for their query parameters
     """
     Izmir = 2
     Istanbul = 3
@@ -23,31 +23,57 @@ class City(Enum):
     Urfa = 6
     Elazig = 7
 
-class RaceDayScrapper:
+
+class BaseRaceDayScrapper:
     """
     Race Day Scrapper(RDS) makes a request to an url in order to get the page source that contains information about
     the past, present or upcoming races usually from Turkey.
     """
+
+    """
+    Each race day contains many races and each of them wrapped by a single div tag, and it's class is 'races-panes'.
+    We store that div inside this property
+    """
     race_divs = ''
+
+    """
+    Fixture and Result has one particular difference in the url, thus this property determines that
+    Fixture: 'GunlukYarisProgrami'
+    Result: 'GunlukYarisSonuclari'
+    """
+    race_type = ''
+
+    """
+    Fixture and Result pages have minor differences, therefore they need different scrappers to scrap html table rows
+    """
+    row_scrapper = ''
 
     def __init__(self, city, date, html=''):
         self.city = city
         self.date = date
 
+        # Means we have to download the html source our selves
         if not html:
-            # Means we have to download the html source our selves
-            # Creating the url
-            # {0} is city id, {1} is city name
-            self.url = 'http://www.tjk.org/TR/YarisSever/Info/Sehir/GunlukYarisSonuclari?SehirId={' \
-                       '0}&QueryParameter_Tarih={2}&SehirAdi={1}'
+            # -- start url parsing --
+            # {0} is race type, {1} is city id, {2} is city name
+            self.url = 'http://www.tjk.org/TR/YarisSever/Info/Sehir/{0}?SehirId={' \
+                       '1}&QueryParameter_Tarih={2}&SehirAdi={3}'
 
             # Feeding the city information to url
-            self.url = self.url.format(city.value, city.name, '{0}')
+            self.url = self.url.format(self.race_type, city.value, '{0}', city.name)
 
             # Feeding the date information to url by formatting the date to appropriate string
-            # Ex: '03-07-2017'
+            # Ex: '03%2F07%2F2017'
+            # But first we use dashes as separator so we won't confuse 'date.strftime' function
             date_format = '{0}-{1}-{2}'.format('%d', '%m', '%Y')
-            self.url = self.url.format(date.strftime(date_format))
+
+            # Now we are replacing dashes with appropriate chars to match the original url
+            formatted_dated = date.strftime(date_format).replace('-', '%2F')
+
+            self.url = self.url.format(formatted_dated)
+            # -- end url parsing --
+
+            print(self.url)
 
             # Get the html of the page that contains the results
             self.html = urllib.request.urlopen(self.url).read()
@@ -55,7 +81,7 @@ class RaceDayScrapper:
             self.html = html
 
         # Get the Soap object for easy scraping
-        soup = BeautifulSoup(self.html)
+        soup = BeautifulSoup(self.html, "lxml")
 
         # Get the div containing all the races
         race_div = soup.find_all("div", class_='races-panes')[0]
@@ -73,10 +99,8 @@ class RaceDayScrapper:
         return cls(City(model.city_id), model.date, model.html_source)
 
     def get(self, is_test=False):
-
         # Create an empty list to hold each race
         races = []
-
         # Process each race
         for rDiv in self.race_divs:
             # Get the raw race details
@@ -113,7 +137,7 @@ class RaceDayScrapper:
             # Go through the each result and process
             for row in horse_rows:
                 # Initialize the scrapper for a single row
-                scrapper = ResultRowScrapper(row)
+                scrapper = self.row_scrapper(row)
 
                 # Get the result model with scrapped data in it
                 model = scrapper.get(is_test)
@@ -140,3 +164,19 @@ class RaceDayScrapper:
             url=self.url,
             city=self.city.name,
             date=self.date)
+
+
+class FixtureScrapper(BaseRaceDayScrapper):
+    """
+    Ex: 'http://www.tjk.org/TR/YarisSever/Info/Sehir/GunlukYarisProgrami?SehirId=9&QueryParameter_Tarih=26%2F09%2F2017&SehirAdi=Kocaeli'
+    """
+    race_type = 'GunlukYarisProgrami'
+    row_scrapper = FixtureRowScrapper
+
+
+class ResultScrapper(BaseRaceDayScrapper):
+    """
+    Ex: 'http://www.tjk.org/EN/YarisSever/Info/Sehir/GunlukYarisSonuclari?SehirId=9&QueryParameter_Tarih=26%2F09%2F2017&SehirAdi=Kocaeli'
+    """
+    race_type = 'GunlukYarisSonuclari'
+    row_scrapper = ResultRowScrapper

@@ -42,7 +42,7 @@ class BaseRaceResult(models.Model):
         return _dict
 
     def __str__(self):
-        return "|".join(list(self.get_pure_dict("id").values()))
+        return "|".join(list(str(s) for s in self.get_pure_dict("id").values()))
 
     def __eq__(self, other):
         return self.get_pure_dict() == other.get_pure_dict()
