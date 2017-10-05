@@ -30,8 +30,8 @@ class BaseRowScrapper:
         self.row = html_row
 
     def get(self, is_test=False):
-        from scrapper.models import RaceResult
-        result = RaceResult()
+        from scrapper.models import Result
+        result = Result()
 
         # Get the result of the horse from the second column
         result.result = self.get_column_content("SONUCNO")

@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import (RaceResult, RaceResultTestData, RaceDayTestData)
+from .models import Result, RaceDayTestData, ResultTestData
 
 # Register your models here
-admin.site.register(RaceResult)
-admin.site.register(RaceResultTestData)
+admin.site.register(Result)
+admin.site.register(ResultTestData)
 admin.site.register(RaceDayTestData)

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from scrapper.models import (RaceResultTestData, RaceDayTestData)
+from scrapper.models import (ResultTestData, RaceDayTestData)
 from scrapper.scrappers import ResultRowScrapper, City, ResultScrapper, FixtureScrapper
 from bs4 import BeautifulSoup
 
@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 class ResultRowScrapperTestCase(TestCase):
     def test_can_scrap_single_row(self):
         # We pick one lucky record
-        recorded_result = RaceResultTestData.objects.get_random()
+        recorded_result = ResultTestData.objects.get_random()
 
         # Initializing a soup object from html in order to parse more
         soup_object = BeautifulSoup(recorded_result.html_row, "lxml")
@@ -48,12 +48,13 @@ class RaceDayScrapperTestCase(TestCase):
                     self.assertEqual(recorded_result, scrapped_result)
 
 
-class RaceResultTestDataTestCase(TestCase):
+class ResultTestDataTestCase(TestCase):
     def test_str(self):
-        expected = 'race_id: 110862|race_date: 2017-07-03|horse_name: KARAHİNDİBAYA |horse_id: 70111|result: 1|' \
+        expected = 'race_id: 110862|race_date: 2017-07-03|horse_name: KARAHİNDİBAYA |horse_id: 70111|' \
                    'horse_age: 2y d  d|horse_father_id: 20224|horse_mother_id: 17924|horse_weight: 55+1.90|' \
-                   'jockey_id: 576|owner_id: 12282|trainer_id: 1473|time: 1.05.76|handicap: -1|track_type: Çim|' \
-                   'distance: 1100|city: Bursa|race_day_id: 1'
+                   'jockey_id: 576|owner_id: 12282|trainer_id: 1473|track_type: Çim|distance: 1100|city: Bursa|' \
+                   'result: 1|handicap: -1|time: 1.05.76|race_day_id: 1'
 
-        outcome = str(RaceResultTestData.objects.get(horse_id=70111, race_id=110862))
-        self.assertEqual(expected, outcome, "The outcome: " + outcome)
+        outcome = str(ResultTestData.objects.get(horse_id=70111, race_id=110862))
+        self.assertEqual(expected, outcome, "The outcome: {0} is not equal to the expected: {1}".format(outcome,
+                                                                                                        expected))
