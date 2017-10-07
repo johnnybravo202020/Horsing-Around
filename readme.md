@@ -39,30 +39,51 @@ There are two tpyes of tests, first one is local and the other one is web tests.
 ##### Web  : `python manage.py test scrapper.tests.web` 
 
 ### Running
-Make sure you run the tests for to make sure scrappers are working. Run `python manage.py test --exe` and if you see "OK" 
-then run `python manage.py shell` in order to activate the django shell. 
+Run both tests as described above if you are running for the first time. If you see 'OK', run `python manage.py 
+shell` in order to activate the django shell. 
 
 From now on we can write python code.
 
-Import the RaceResult model and City enum
+Import the City enum
 ```python
-    from scrapper.models import RaceResult
     from scrapper.scrappers import City
 ```
-Now we can call the scrap method from the model. 
-```python
-    races = RaceResult.objects.scrap(City.Bursa, year=2017, month=7, day=3)
-```
-This will return a list of races which contains the results of the respected race. 
 
+The return object will be list containing another list of each race and each race is another list of each horse that 
+run that race. Depending on the used scrapper the horse object will be either model Result or model Fixture
+
+##### Result Scrapper
+Result Scrapper will contain the time and handicap information along with the other information for each horse run 
+during the day.
+```python
+    # Import the scrapper
+    from scrapper.scrappers import ResultScrapper
+    
+    # Now scrap
+    results = ResultScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
+```
 You can also supply the date as a datetime object
 ```python
     import datetime
     
-    races = RaceResult.objects.scrap(City.Bursa, datetime.date(2017, 7, 3)) 
+    races = ResultScrapper.scrap_by_date(City.Bursa, datetime.date(2017, 7, 3)) 
 ```
 
-Now, in order to see the results, we can do `print(races)`
+##### Fixture Scrapper
+Fixture Scrapper will contain the information of upcoming races and won't contain any results like time and handicap
+```python
+    # Import the scrapper
+    from scrapper.scrappers import FixtureScrapper
+    
+    # Now scrap
+    results = FixtureScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
+```
+You can also supply the date as a datetime object
+```python
+    import datetime
+    
+    races = FixtureScrapper.scrap_by_date(City.Bursa, datetime.date(2017, 7, 3)) 
+```
 
 ## Road Map
 * Write tests for scrappers(Ongoing)

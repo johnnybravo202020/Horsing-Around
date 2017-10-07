@@ -1,18 +1,19 @@
 from django.test import TestCase
-from scrapper.models import (ResultTestData, RaceDayTestData)
-from scrapper.scrappers import ResultRowScrapper, City, ResultScrapper, FixtureScrapper
+from scrapper.models import ResultTestData, FixtureTestData, RaceDayTestData
+from scrapper.scrappers import PageType, ResultScrapper, FixtureScrapper
+from scrapper.scrappers.row import ResultRowScrapper, FixtureRowScrapper
 from bs4 import BeautifulSoup
 
 
-class ResultRowScrapperTestCase(TestCase):
-    def test_can_scrap_single_row(self):
+class RowScrapperTestCase(TestCase):
+    def assert_row_scrapper(self, test_model, row_scrapper):
         # We pick one lucky record
-        recorded_result = ResultTestData.objects.get_random()
+        recorded_result = test_model.objects.get_random()
 
         # Initializing a soup object from html in order to parse more
         soup_object = BeautifulSoup(recorded_result.html_row, "lxml")
 
-        scrapper = ResultRowScrapper(soup_object)
+        scrapper = row_scrapper(soup_object)
         scrapped_result = scrapper.get()
 
         # Since it is not row scrappers job to scrap the information of the race itself we assign manually
@@ -28,15 +29,23 @@ class ResultRowScrapperTestCase(TestCase):
 
         self.assertEqual(recorded_result, scrapped_result)
 
+    def test_can_scrap_single_result_row(self):
+        self.assert_row_scrapper(ResultTestData, ResultRowScrapper)
+
+    def test_can_scrap_single_fixture_row(self):
+        self.assert_row_scrapper(FixtureTestData, FixtureRowScrapper)
+
 
 class RaceDayScrapperTestCase(TestCase):
-    def test_can_scrap_race_day(self):
-
-        test_race_days = RaceDayTestData.objects.all()
+    def assert_race_day(self, page_type, scrapper):
+        test_race_days = RaceDayTestData.objects.filter(page_type=page_type.value)
 
         for race_day in test_race_days:
-            scrapper = ResultScrapper.from_test_data_model(race_day)
-            recorded_results = race_day.results.all()
+            scrapper = scrapper.from_test_data_model(race_day)
+
+            # It could either be fixtures or results for the race_day
+            runs = getattr(race_day, page_type.name.lower() + 's')
+            recorded_results = runs.all()
 
             scraped_races = scrapper.get()
             for race in scraped_races:
@@ -46,6 +55,12 @@ class RaceDayScrapperTestCase(TestCase):
                     # The scrapped race is not going have an id we simple assign the recorded_result's id
                     scrapped_result.id = recorded_result.id
                     self.assertEqual(recorded_result, scrapped_result)
+
+    def test_can_scrap_race_day_result(self):
+        self.assert_race_day(PageType.Result, ResultScrapper)
+
+    def test_can_scrap_race_day_fixture(self):
+        self.assert_race_day(PageType.Fixture, FixtureScrapper)
 
 
 class ResultTestDataTestCase(TestCase):

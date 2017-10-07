@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
 from enum import Enum
+from scrapper.models import Result, Fixture
 
 
 class ManagerType(Enum):
@@ -26,22 +27,14 @@ class BaseRowScrapper:
     """
     td_class_base = ''
 
+    model = ''
+    test_model = ''
+
     def __init__(self, html_row):
         self.row = html_row
 
     def get(self, is_test=False):
-        from scrapper.models import Result
-        result = Result()
-
-        # Get the result of the horse from the second column
-        result.result = self.get_column_content("SONUCNO")
-
-        # Horses might not run that race or cannot finish it for various reasons. In that case what we get is an
-        # empty string, we mark it as -1 if that happens
-        if not result.result:
-            result.result = -1
-        else:
-            result.result = int(result.result)
+        model = self.model()
 
         # The third column in the table contains the name of the horse and a link that goes to that horse's page.
         # Also the link will have the id of the horse and the abbreviations that come after the name which tells
@@ -52,46 +45,39 @@ class BaseRowScrapper:
         # first element is the name it self, others are the abbreviations, so we get the first and assign it as name
         # after trimming a little. The reason of the trim is to get rid of the number in the parenthesis
         # Example "KARAHİNDİBAYA (7)" -> "KARAHİNDİBAYA"
-        result.horse_name = horse_name_html.contents[0].split("(")[0]
+        model.horse_name = horse_name_html.contents[0].split("(")[0]
 
         # Now get the id of the horse from that url
-        result.horse_id = int(self.get_id_from_a(horse_name_html))
+        model.horse_id = int(self.get_id_from_a(horse_name_html))
 
-        # Get the result of the horse from the fourth column
-        result.horse_age = self.get_column_content("Yas")
+        # Get the model of the horse from the fourth column
+        model.horse_age = self.get_column_content("Yas")
 
         # Horses father and mother are combined in a single column in separate <a> So we find all the <a> in the
         # column and only get their id's from respected links. Father is the first, mother is the second
         parent_links = self.get_column("Baba").find_all('a', href=True)
 
         # Process the father
-        result.horse_father_id = int(self.get_id_from_a(parent_links[0]))
+        model.horse_father_id = int(self.get_id_from_a(parent_links[0]))
 
         # Process the mother
-        result.horse_mother_id = int(self.get_id_from_a(parent_links[1]))
+        model.horse_mother_id = int(self.get_id_from_a(parent_links[1]))
 
         # Get the weight of the horse during the time of the race
-        result.horse_weight = self.get_column_content("Kilo")
+        model.horse_weight = self.get_column_content("Kilo")
 
         # Jockey, owner and trainer's have their id's just like the horse's own id. We are only interested in their
         # ids so we don't bother to get their names
-        result.jockey_id = self.get_manager_id(ManagerType.Jockey)
-        result.owner_id = self.get_manager_id(ManagerType.Owner)
-        result.trainer_id = self.get_manager_id(ManagerType.Trainer)
-
-        # Get the time that it took horse to run this race
-        result.time = self.get_column_content("Derece")
-
-        # Hc and Hk are two different handicap types that is possible
-        result.handicap = int(self.get_column_content("Hc") or self.get_column_content("Hk"))
+        model.jockey_id = self.get_manager_id(ManagerType.Jockey)
+        model.owner_id = self.get_manager_id(ManagerType.Owner)
+        model.trainer_id = self.get_manager_id(ManagerType.Trainer)
 
         # If we are collecting this data for testing purposes we need to return to correct model which is
         # RaceResultTestData
         if is_test:
-            from scrapper.models import RaceResultTestData
-            result = RaceResultTestData.from_actual(result, html_row=self.row)
+            model = self.test_model.from_actual(model, html_row=self.row)
 
-        return result
+        return model
 
     def get_column(self, col_name):
         """
@@ -145,6 +131,8 @@ class FixtureRowScrapper(BaseRowScrapper):
     """
     horse_name_class_name = "AtAdi"
     td_class_base = 'gunluk-GunlukYarisProgrami-'
+    model = Fixture
+    #test_model = scrapper.models.test.FixtureTestData
 
 
 class ResultRowScrapper(BaseRowScrapper):
@@ -153,3 +141,26 @@ class ResultRowScrapper(BaseRowScrapper):
     """
     horse_name_class_name = "AtAdi3"
     td_class_base = 'gunluk-GunlukYarisSonuclari-'
+    model = Result
+    #test_model = scrapper.models.ResultTestData
+
+    def get(self, is_test=False):
+        result = super(ResultRowScrapper, self).get()
+
+        # Get the result of the horse from the second column
+        result.result = self.get_column_content("SONUCNO")
+
+        # Horses sometimes may not run
+        # Horses might not run that race or cannot finish it for various reasons. In that case what we get is an
+        # empty string, we mark it as -1 if that happens
+        if not result.result:
+            result.result = -1
+        else:
+            result.result = int(result.result)
+
+        # Get the time that it took horse to run this race
+        result.time = self.get_column_content("Derece")
+        # Hc and Hk are two different handicap types that is possible
+        result.handicap = int(self.get_column_content("Hc") or self.get_column_content("Hk"))
+        return result
+

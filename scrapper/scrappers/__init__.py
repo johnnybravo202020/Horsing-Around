@@ -1,3 +1,3 @@
-from .row import ResultRowScrapper
-from .race_day import ResultScrapper, FixtureScrapper, City
+from .race_day import ResultScrapper, FixtureScrapper
 from . import util
+from .enum import City, PageType

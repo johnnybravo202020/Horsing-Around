@@ -6,22 +6,8 @@ from bs4 import BeautifulSoup
 import urllib.request
 from .row import FixtureRowScrapper, ResultRowScrapper
 import datetime
-from enum import Enum
 from scrapper import models
-
-
-class City(Enum):
-    """
-    Cities and their are respected ids determined by TJK.org for their query parameters
-    """
-    Izmir = 2
-    Istanbul = 3
-    Bursa = 4
-    Adana = 1
-    Ankara = 5
-    Kocaeli = 9
-    Urfa = 6
-    Elazig = 7
+from .enum import PageType, City
 
 
 class BaseRaceDayScrapper:
@@ -47,6 +33,8 @@ class BaseRaceDayScrapper:
     Fixture and Result pages have minor differences, therefore they need different scrappers to scrap html table rows
     """
     row_scrapper = ''
+
+    page_type = ''
 
     def __init__(self, city, date, html=''):
         self.city = city
@@ -80,6 +68,9 @@ class BaseRaceDayScrapper:
         else:
             self.html = html
 
+        self.race_divs = self.get_race_divs()
+
+    def get_race_divs(self):
         # Get the Soap object for easy scraping
         soup = BeautifulSoup(self.html, "lxml")
 
@@ -88,7 +79,7 @@ class BaseRaceDayScrapper:
 
         # Getting the one level inner divs which contains each race. Recursive is set to false because we don't want
         # to go the the inner child of those divs. Just trying to stay on the first level
-        self.race_divs = race_div.find_all("div", recursive=False)
+        return race_div.find_all("div", recursive=False)
 
     @classmethod
     def from_date_values(cls, city, year, month, day):
@@ -99,6 +90,8 @@ class BaseRaceDayScrapper:
         return cls(City(model.city_id), model.date, model.html_source)
 
     def get(self, is_test=False):
+        #race_day = self.get_test_data_model()
+        #race_day.save()
         # Create an empty list to hold each race
         races = []
         # Process each race
@@ -133,7 +126,6 @@ class BaseRaceDayScrapper:
 
             # Create an empty list to hold each result for this race
             results = []
-
             # Go through the each result and process
             for row in horse_rows:
                 # Initialize the scrapper for a single row
@@ -149,6 +141,11 @@ class BaseRaceDayScrapper:
                 model.city = self.city.name
                 model.race_date = self.date
 
+                from scrapper.models.test import FixtureTestData
+
+                #test = FixtureTestData.from_actual(model, row)
+                #test.race_day = race_day
+                #test.save()
                 # Append the model to the result list
                 results.append(model)
 
@@ -162,8 +159,32 @@ class BaseRaceDayScrapper:
         return models.RaceDayTestData(
             html_source=self.html,
             url=self.url,
-            city=self.city.name,
-            date=self.date)
+            city_id=self.city.value,
+            date=self.date,
+            page_type=self.page_type.value)
+
+    @classmethod
+    def scrap_by_date(cls, city, date):
+        """
+        Scraps the results of the supplied city and date
+        :param city: City which the race happened
+        :param date: datetime object for the desired race
+        :return: Returns the results of the desired race
+        """
+        scrapper = cls(city, date)
+        return scrapper.get()
+
+    @classmethod
+    def scrap(cls, city, year, month, day):
+        """
+        Scraps the results of the supplied city and date values
+        :param city: City which the race happened
+        :param year: The year of the wanted race
+        :param month: The month of the wanted race
+        :param day: The day of the wanted race
+        :return: Returns the results of the desired race
+        """
+        return cls.scrap_by_date(city, datetime.datetime(year, month, day))
 
 
 class FixtureScrapper(BaseRaceDayScrapper):
@@ -172,6 +193,7 @@ class FixtureScrapper(BaseRaceDayScrapper):
     """
     race_type = 'GunlukYarisProgrami'
     row_scrapper = FixtureRowScrapper
+    page_type = PageType.Fixture
 
 
 class ResultScrapper(BaseRaceDayScrapper):
@@ -180,3 +202,4 @@ class ResultScrapper(BaseRaceDayScrapper):
     """
     race_type = 'GunlukYarisSonuclari'
     row_scrapper = ResultRowScrapper
+    page_type = PageType.Result
