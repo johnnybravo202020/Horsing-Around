@@ -38,6 +38,7 @@ There are two tpyes of tests, first one is local and the other one is web tests.
 ##### Local: `python manage.py test scrapper.tests.local` 
 ##### Web  : `python manage.py test scrapper.tests.web` 
 
+
 ### Running
 Run both tests as described above if you are running for the first time. If you see 'OK', run `python manage.py 
 shell` in order to activate the django shell. 
@@ -60,7 +61,7 @@ during the day.
     from scrapper.scrappers import ResultScrapper
     
     # Now scrap
-    results = ResultScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
+    races = ResultScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
 ```
 You can also supply the date as a datetime object
 ```python
@@ -76,7 +77,7 @@ Fixture Scrapper will contain the information of upcoming races and won't contai
     from scrapper.scrappers import FixtureScrapper
     
     # Now scrap
-    results = FixtureScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
+    races = FixtureScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
 ```
 You can also supply the date as a datetime object
 ```python
@@ -84,6 +85,17 @@ You can also supply the date as a datetime object
     
     races = FixtureScrapper.scrap_by_date(City.Bursa, datetime.date(2017, 7, 3)) 
 ```
+
+##### Saving the data for testing
+The scrapped data can be saved to the local sqlite db for testing purposes with 'save_data_for_test' parameter.
+```python
+    races_fixture = FixtureScrapper.scrap(City.Istanbul, year=2017, month=10, day=8)
+
+    races_results = ResultScrapper.scrap_by_date(City.Ankara, datetime.date(2017, 10, 7)) 
+```
+
+Some tests read a single random record from the database and tests on it, therefore every test that is saved has an 
+equal chance to be tested with others. 
 
 ## Road Map
 * Write tests for scrappers(Ongoing)

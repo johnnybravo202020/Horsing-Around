@@ -36,9 +36,10 @@ class BaseRaceDayScrapper:
 
     page_type = ''
 
-    def __init__(self, city, date, html=''):
+    def __init__(self, city, date, html='', url='', save_data_for_test=False):
         self.city = city
         self.date = date
+        self.save_data_for_test = save_data_for_test
 
         # Means we have to download the html source our selves
         if not html:
@@ -67,8 +68,13 @@ class BaseRaceDayScrapper:
             self.html = urllib.request.urlopen(self.url).read()
         else:
             self.html = html
+            self.url = url
 
         self.race_divs = self.get_race_divs()
+
+        if self.save_data_for_test:
+            self.race_day = self.get_test_data_model()
+            self.race_day.save()
 
     def get_race_divs(self):
         # Get the Soap object for easy scraping
@@ -87,11 +93,9 @@ class BaseRaceDayScrapper:
 
     @classmethod
     def from_test_data_model(cls, model):
-        return cls(City(model.city_id), model.date, model.html_source)
+        return cls(City(model.city_id), model.date, model.html_source, model.url)
 
-    def get(self, is_test=False):
-        #race_day = self.get_test_data_model()
-        #race_day.save()
+    def get(self):
         # Create an empty list to hold each race
         races = []
         # Process each race
@@ -132,7 +136,7 @@ class BaseRaceDayScrapper:
                 scrapper = self.row_scrapper(row)
 
                 # Get the result model with scrapped data in it
-                model = scrapper.get(is_test)
+                model = scrapper.get()
 
                 # Assign the values that are specific to this race
                 model.track_type = track_type
@@ -141,11 +145,13 @@ class BaseRaceDayScrapper:
                 model.city = self.city.name
                 model.race_date = self.date
 
-                from scrapper.models.test import FixtureTestData
+                if self.save_data_for_test:
+                    from scrapper.models.test import FixtureTestData
 
-                #test = FixtureTestData.from_actual(model, row)
-                #test.race_day = race_day
-                #test.save()
+                    test = FixtureTestData.from_actual(model, row)
+                    test.race_day = self.race_day
+                    test.save()
+
                 # Append the model to the result list
                 results.append(model)
 
@@ -164,27 +170,29 @@ class BaseRaceDayScrapper:
             page_type=self.page_type.value)
 
     @classmethod
-    def scrap_by_date(cls, city, date):
+    def scrap_by_date(cls, city, date, save_data_for_test=True):
         """
         Scraps the results of the supplied city and date
         :param city: City which the race happened
         :param date: datetime object for the desired race
+        :param save_data_for_test: if true, scrapped records will be saved to the local sqllite db
         :return: Returns the results of the desired race
         """
-        scrapper = cls(city, date)
+        scrapper = cls(city, date, save_data_for_test=save_data_for_test)
         return scrapper.get()
 
     @classmethod
-    def scrap(cls, city, year, month, day):
+    def scrap(cls, city, year, month, day, save_data_for_test=True):
         """
         Scraps the results of the supplied city and date values
         :param city: City which the race happened
         :param year: The year of the wanted race
         :param month: The month of the wanted race
         :param day: The day of the wanted race
+        :param save_data_for_test: if true, scrapped records will be saved to the local sqllite db
         :return: Returns the results of the desired race
         """
-        return cls.scrap_by_date(city, datetime.datetime(year, month, day))
+        return cls.scrap_by_date(city, datetime.datetime(year, month, day), save_data_for_test=save_data_for_test)
 
 
 class FixtureScrapper(BaseRaceDayScrapper):

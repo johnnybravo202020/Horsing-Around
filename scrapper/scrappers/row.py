@@ -72,11 +72,6 @@ class BaseRowScrapper:
         model.owner_id = self.get_manager_id(ManagerType.Owner)
         model.trainer_id = self.get_manager_id(ManagerType.Trainer)
 
-        # If we are collecting this data for testing purposes we need to return to correct model which is
-        # RaceResultTestData
-        if is_test:
-            model = self.test_model.from_actual(model, html_row=self.row)
-
         return model
 
     def get_column(self, col_name):
