@@ -3,7 +3,7 @@
 
 ![alt text][banner]
 
-**Current Functionalty:**
+**Current Functionality:**
 * Can scrap the results of a given date and city
 
 Official Web site of Turkish Jokey Organization:[Turkish](http://www.tjk.org/)|[English](http://www.tjk.org/EN/YarisSever/YarisSever/Index)
@@ -85,13 +85,22 @@ You can also supply the date as a datetime object
     
     races = FixtureScrapper.scrap_by_date(City.Bursa, datetime.date(2017, 7, 3)) 
 ```
+##### Collecting the statistics
+Past results of the horses that were or going to be in the race can be collected along with the race information. 
+However,
+ since the scrapper needs to visit every page it takes a while depending on how many horses in total was iin the race.
+```python
+    races_fixture = FixtureScrapper.scrap(City.Istanbul, year=2017, month=10, day=8, get_past_statistics=True)
+
+    races_results = ResultScrapper.scrap_by_date(City.Ankara, datetime.date(2017, 10, 7), get_past_statistics=True)
+```
 
 ##### Saving the data for testing
 The scrapped data can be saved to the local sqlite db for testing purposes with 'save_data_for_test' parameter.
 ```python
-    races_fixture = FixtureScrapper.scrap(City.Istanbul, year=2017, month=10, day=8)
+    races_fixture = FixtureScrapper.scrap(City.Istanbul, year=2017, month=10, day=8, save_data_for_test=True)
 
-    races_results = ResultScrapper.scrap_by_date(City.Ankara, datetime.date(2017, 10, 7)) 
+    races_results = ResultScrapper.scrap_by_date(City.Ankara, datetime.date(2017, 10, 7), save_data_for_test=True) 
 ```
 
 Some tests read a single random record from the database and tests on it, therefore every test that is saved has an 

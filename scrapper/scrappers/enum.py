@@ -7,6 +7,7 @@ class PageType(Enum):
     """
     Fixture = 'F'
     Result = 'R'
+    Horse = 'H'
 
 
 class City(Enum):

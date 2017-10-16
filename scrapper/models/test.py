@@ -30,3 +30,7 @@ class ResultTestData(BaseTestData, ResultMixin):
 class FixtureTestData(BaseTestData):
     objects = TestDataManager()
     race_day = models.ForeignKey(RaceDayTestData, related_name='fixtures')
+
+
+class HorseTestData(BaseTestData):
+    objects = TestDataManager()

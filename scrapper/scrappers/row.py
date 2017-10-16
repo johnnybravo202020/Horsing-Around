@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
 from enum import Enum
-from scrapper.models import Result, Fixture
+from scrapper.models import Result, Fixture, Horse
 
 
 class ManagerType(Enum):
@@ -14,10 +14,52 @@ class ManagerType(Enum):
 
 
 class BaseRowScrapper:
+    model = ''
+    test_model = ''
+
+    def __init__(self, html_row):
+        self.row = html_row
+
+    def get(self):
+        model = self.model()
+
+        # Jockey, owner and trainer's have their id's just like the horse's own id. We are only interested in their
+        # ids so we don't bother to get their names
+        model.jockey_id = self.get_manager_id(ManagerType.Jockey)
+        model.owner_id = self.get_manager_id(ManagerType.Owner)
+        model.trainer_id = self.get_manager_id(ManagerType.Trainer)
+
+        return model
+
+    def get_manager_id(self, _type):
+        """
+        :param _type: The content of the column where the according type of manager is
+        :return: id of the desired manager either Jockey, Owner or Trainer
+        """
+        pass
+
+    @staticmethod
+    def get_id_from_a(a):
+        """"
+        The url's contain the id, after the phrase Id=
+        :param a: The html code of a tag
+        :return: id of the supplied a tag
+        """
+        # We split from that and take the rest
+        id_ = a['href'].split("Id=")[1]
+
+        # We split one more time in case of there is more after the id
+        # We take the first part this time
+        id_ = id_.split("&")[0]
+
+        return id_
+
+
+class BaseRaceDayRowScrapper(BaseRowScrapper):
     """
-    Class name used for horses' name in TJK's site, after "gunluk-GunlukYarisProgrami-"
-    Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi">
-    """
+      Class name used for horses' name in TJK's site, after "gunluk-GunlukYarisProgrami-"
+      Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi">
+      """
     horse_name_class_name = ''
 
     """
@@ -27,15 +69,8 @@ class BaseRowScrapper:
     """
     td_class_base = ''
 
-    model = ''
-    test_model = ''
-
-    def __init__(self, html_row):
-        self.row = html_row
-
-    def get(self, is_test=False):
-        model = self.model()
-
+    def get(self):
+        model = super(BaseRaceDayRowScrapper, self).get()
         # The third column in the table contains the name of the horse and a link that goes to that horse's page.
         # Also the link will have the id of the horse and the abbreviations that come after the name which tells
         # status information, for example whether the horse will run with an eye patch and etc.
@@ -66,13 +101,19 @@ class BaseRowScrapper:
         # Get the weight of the horse during the time of the race
         model.horse_weight = self.get_column_content("Kilo")
 
-        # Jockey, owner and trainer's have their id's just like the horse's own id. We are only interested in their
-        # ids so we don't bother to get their names
-        model.jockey_id = self.get_manager_id(ManagerType.Jockey)
-        model.owner_id = self.get_manager_id(ManagerType.Owner)
-        model.trainer_id = self.get_manager_id(ManagerType.Trainer)
-
         return model
+
+    def get_manager_id(self, _type):
+        """
+        :param _type: The content of the column where the according type of manager is
+        :return: id of the desired manager either Jockey, Owner or Trainer
+        """
+        try:
+            # Sometimes the info is not there, so we have to be safe
+            return int(self.get_id_from_a(self.get_column(_type.value).find('a', href=True)))
+        except:
+            # Info is not there, mark it as missing
+            return -1
 
     def get_column(self, col_name):
         """
@@ -91,36 +132,8 @@ class BaseRowScrapper:
         column = self.get_column(col_name)
         return "".join(column.stripped_strings if column else '-1')
 
-    def get_manager_id(self, _type):
-        """
-        :param _type: The content of the column where the according type of manager is
-        :return: id of the desired manager either Jockey, Owner or Trainer
-        """
-        try:
-            # Sometimes the info is not there, so we have to be safe
-            return int(self.get_id_from_a(self.get_column(_type.value).find('a', href=True)))
-        except:
-            # Info is not there, mark it as missing
-            return -1
 
-    @staticmethod
-    def get_id_from_a(a):
-        """"
-        The url's contain the id, after the phrase Id=
-        :param a: The html code of a tag
-        :return: id of the supplied a tag
-        """
-        # We split from that and take the rest
-        id_ = a['href'].split("Id=")[1]
-
-        # We split one more time in case of there is more after the id
-        # We take the first part this time
-        id_ = id_.split("&")[0]
-
-        return id_
-
-
-class FixtureRowScrapper(BaseRowScrapper):
+class FixtureRowScrapper(BaseRaceDayRowScrapper):
     """
     Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi">
     """
@@ -130,7 +143,7 @@ class FixtureRowScrapper(BaseRowScrapper):
     #test_model = scrapper.models.test.FixtureTestData
 
 
-class ResultRowScrapper(BaseRowScrapper):
+class ResultRowScrapper(BaseRaceDayRowScrapper):
     """
     Ex: <td class="gunluk-GunlukYarisProgrami-AtAdi3">
     """
@@ -158,4 +171,60 @@ class ResultRowScrapper(BaseRowScrapper):
         # Hc and Hk are two different handicap types that is possible
         result.handicap = int(self.get_column_content("Hc") or self.get_column_content("Hk"))
         return result
+
+
+class HorseRowScrapper(BaseRowScrapper):
+    model = Horse
+
+    def __init__(self, html_row):
+        super(HorseRowScrapper, self).__init__(html_row)
+        # Most of the columns do not have classes, we get all columns and assign each by hard-coding indexes
+        self.columns = self.row.find_all("td")
+
+    def get(self):
+        model = super(HorseRowScrapper, self).get()
+
+        date_and_race_id = self.columns[0]
+
+        model.race_date = date_and_race_id.text
+
+        try:
+            race_url = date_and_race_id.find('a', href=True)['href']
+            # Race id is after the only hash-tag
+            # Ex: /TR/YarisSever/Info/Page/GunlukYarisSonuclari?QueryParameter_Tarih=04/08/2017#111471
+            # Split by hash-tag and get the second
+            model.race_id = race_url.split('#')[1]
+        except TypeError:
+            # Some results don't have the races linked to them, so we mark it as missing
+            model.race_id = -1
+
+        model.city = self.columns[1].text
+        model.distance = self.columns[2].text
+        model.track_type = self.columns[3].text
+        model.result = self.columns[4].text
+        model.time = self.columns[5].text
+        model.weight = self.columns[6].text
+
+        model.handicap = self.columns[14].text if len(self.columns[14].text) > 0 else -1
+        return model
+
+    def get_manager_id(self, _type):
+        """
+        :param _type: The content of the column where the according type of manager is
+        :return: id of the desired manager either Jockey, Owner or Trainer
+        """
+        index = 0
+        if _type is ManagerType.Jockey:
+            index = 7
+        elif _type is ManagerType.Trainer:
+            index = 12
+        elif _type is ManagerType.Owner:
+            index = 13
+        else:
+            raise Exception("Manager type not recognized!")
+
+        try:
+            return self.get_id_from_a(self.columns[index].find('a', href=True))
+        except:
+            raise Exception(self.row)
 
