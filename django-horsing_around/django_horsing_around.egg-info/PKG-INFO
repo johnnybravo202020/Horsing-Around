@@ -1,0 +1,34 @@
+Metadata-Version: 1.1
+Name: django-horsing-around
+Version: 0.1
+Summary: Scraps data from the official web site of the horse races run in Turkey, in order to forecast the race results
+Home-page: UNKNOWN
+Author: Ege Aydin
+Author-email: egeaydin@gmail.com
+License: UNKNOWN
+Description: =====
+        Horsing-Around
+        =====
+        
+        Scraps data from the official web site of the horse races run in Turkey, in order to forecast the race results
+        
+        Quick start
+        -----------
+        
+        1. Add "horsing-around" to your INSTALLED_APPS setting like this::
+        
+            INSTALLED_APPS = [
+                ...
+                'horsing-around',
+            ]
+        
+        
+        3. Run `python manage.py migrate` to create the scrapper models if you want to be able to save them.
+Platform: UNKNOWN
+Classifier: Environment :: Web or Experimental Environment
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 1.11.4
+Classifier: Intended Audience :: Developers, Data Scientists, Enthusiastic, Bored
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6 - Anaconda 4.3.1
