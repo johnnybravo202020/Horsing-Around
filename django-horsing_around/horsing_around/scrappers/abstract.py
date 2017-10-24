@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib.request
 import datetime
-from .. import models
 from ..enum import City
 import logging
 
@@ -59,6 +58,9 @@ class BasePageScrapper:
     def get(self):
         pass
 
+    def is_found(self):
+        pass#if self.html
+
 
 class BaseRaceDayScrapper(BasePageScrapper):
     """
@@ -105,7 +107,11 @@ class BaseRaceDayScrapper(BasePageScrapper):
         soup = BeautifulSoup(self.html, "lxml")
 
         # Get the div containing all the races
-        race_div = soup.find_all("div", class_='races-panes')[0]
+        race_div = soup.find("div", class_='races-panes')
+
+        # Check if the page is valid
+        if not race_div:
+            pass
 
         # Getting the one level inner divs which contains each race. Recursive is set to false because we don't want
         # to go the the inner child of those divs. Just trying to stay on the first level

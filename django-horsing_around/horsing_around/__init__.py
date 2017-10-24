@@ -1,1 +1,1 @@
-from .enum import City
+from .enum import City, PageType

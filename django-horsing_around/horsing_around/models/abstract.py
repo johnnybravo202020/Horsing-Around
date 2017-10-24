@@ -1,11 +1,13 @@
 from django.db import models
 from ..util.collections import OrderedClassMembers
 import copy
+from ..scrappers.page import HorseScrapper
 
 
 class BaseModel(models.Model):
     class Meta:
         abstract = True
+
     __metaclass__ = OrderedClassMembers
     race_id = models.IntegerField(default=0)
     race_date = models.DateField(blank=True, null=True)
@@ -17,7 +19,6 @@ class BaseModel(models.Model):
     past_results = list()
 
     def set_past_results(self):
-        from scrapper.scrappers.page import HorseScrapper
         past_scrapper = HorseScrapper(self.horse_id)
         past_results = past_scrapper.get()
         self.past_results.append(past_results)

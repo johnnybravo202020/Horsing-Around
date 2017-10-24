@@ -15,6 +15,11 @@ class PageType(Enum):
         scrapper_module = importlib.import_module("horsing_around.scrappers")
         return getattr(scrapper_module, '{0}Scrapper'.format(self.name))
 
+    @property
+    def model(self):
+        model_module = importlib.import_module("horsing_around.models")
+        return getattr(model_module, self.name)
+
 
 class City(Enum):
     """
@@ -28,6 +33,7 @@ class City(Enum):
     Kocaeli = 9
     Urfa = 6
     Elazig = 7
+    Diyarbakir = 8
 
 
 class ManagerType(Enum):

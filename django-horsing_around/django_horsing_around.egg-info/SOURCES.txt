@@ -18,5 +18,13 @@ horsing_around/scrappers/abstract.py
 horsing_around/scrappers/page.py
 horsing_around/scrappers/row.py
 horsing_around/scrappers/util.py
+horsing_around/tests/__init__.py
+horsing_around/tests/local.py
+horsing_around/tests/managers.py
+horsing_around/tests/models.py
+horsing_around/tests/string_util.py
+horsing_around/tests/web.py
+horsing_around/tests/migrations/0001_initial.py
+horsing_around/tests/migrations/__init__.py
 horsing_around/util/__init__.py
 horsing_around/util/collections.py

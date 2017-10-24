@@ -1,6 +1,31 @@
 import os
 from setuptools import find_packages, setup
 
+from setuptools.command.test import test
+
+
+class TestCommand(test):
+    """Django settings will be configured when 'python setup.py test' is run"""
+
+    def run(self):
+        import django
+        from django.conf import settings
+
+        import django_settings
+        # So SQLite db won't be destroyed
+        os.environ['REUSE_DB'] = "1"
+
+        settings.configure(BASE_DIR=django_settings.BASE_DIR,
+                           TEST_RUNNER=django_settings.TEST_RUNNER,
+                           DEBUG=django_settings.DEBUG,
+                           INSTALLED_APPS=django_settings.INSTALLED_APPS,
+                           DATABASES=django_settings.DATABASES,
+                           LOGGING=django_settings.LOGGING)
+
+        django.setup()
+        test.run(self)
+
+
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
 
@@ -28,4 +53,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
     ],
+    cmdclass={
+        'test': TestCommand
+    }
 )

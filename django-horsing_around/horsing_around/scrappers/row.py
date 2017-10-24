@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
-from ..models import Result, Fixture, Horse
-from ..enum import ManagerType
+#import ..models.actual #import Result, Fixture, Horse
+from ..enum import ManagerType, PageType
 
 
 class BaseRowScrapper:
-    model = ''
     test_model = ''
+    page_type = ''
 
     def __init__(self, html_row):
         self.row = html_row
 
     def get(self):
-        model = self.model()
+        model = self.page_type.model()
 
         # Jockey, owner and trainer's have their id's just like the horse's own id. We are only interested in their
         # ids so we don't bother to get their names
@@ -131,7 +131,7 @@ class FixtureRowScrapper(BaseRaceDayRowScrapper):
     """
     horse_name_class_name = "AtAdi"
     td_class_base = 'gunluk-GunlukYarisProgrami-'
-    model = Fixture
+    page_type = PageType.Fixture
 
 
 class ResultRowScrapper(BaseRaceDayRowScrapper):
@@ -140,7 +140,7 @@ class ResultRowScrapper(BaseRaceDayRowScrapper):
     """
     horse_name_class_name = "AtAdi3"
     td_class_base = 'gunluk-GunlukYarisSonuclari-'
-    model = Result
+    page_type = PageType.Result
 
     def get(self, is_test=False):
         result = super(ResultRowScrapper, self).get()
@@ -164,7 +164,7 @@ class ResultRowScrapper(BaseRaceDayRowScrapper):
 
 
 class HorseRowScrapper(BaseRowScrapper):
-    model = Horse
+    page_type = PageType.Horse
 
     def __init__(self, html_row):
         super(HorseRowScrapper, self).__init__(html_row)

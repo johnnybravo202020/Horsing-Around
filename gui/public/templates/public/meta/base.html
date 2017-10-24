@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+    {% load static %}
+
+    {% include "public/meta/meta.html" %}
+    {% include "public/meta/styles.html" %}
+    <!-- jQuery 3 -->
+    <script src="{% static 'public/js/jquery.min.js' %}"></script>
+
+    <!-- Google Font -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+{% include "public/partial/ajax_loader.html" %}
+<div class="wrapper">
+    {% include "public/meta/header.html" %}
+    {% include "public/meta/sidebar.html" %}
+    <!-- Content Wrapper. Contains page content -->
+
+    <div class="content-wrapper">
+        {% block body %}
+        {% endblock %}
+        <!-- /.content -->
+    </div>
+    {% include "public/meta/footer.html" %}
+
+</div>
+{% include "public/meta/scripts.html" %}
+</body>
+</html>
