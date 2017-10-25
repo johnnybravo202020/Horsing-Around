@@ -30,8 +30,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'base',
+    'scrapper',
     'horsing_around',
-    'public',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'public.context_processors.get_scrapper_forms',
+                'scrapper.context_processors.get_scrapper_forms',
             ],
         },
     },

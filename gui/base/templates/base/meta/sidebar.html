@@ -2,12 +2,6 @@
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
-            <li class="header">MAIN NAVIGATION</li>
-            <li>
-                <a href="{% url 'forecaster' %}">
-                    <i class="fa fa-dashboard"></i> <span>Forecaster</span>
-                </a>
-            </li>
             <li class="treeview">
                 <a href="#">
                     <i class="fa fa-pie-chart"></i>
@@ -24,7 +18,7 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                        {% include "public/partial/scrapper_form.html" with form=fixture_form %}
+                        {% include "base/partial/scrapper_form.html" with form=fixture_form %}
                         </ul>
                     </li>
                     <li class="treeview">

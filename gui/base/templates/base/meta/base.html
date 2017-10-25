@@ -2,10 +2,10 @@
 <head>
     {% load static %}
 
-    {% include "public/meta/meta.html" %}
-    {% include "public/meta/styles.html" %}
+    {% include "base/meta/meta.html" %}
+    {% include "base/meta/styles.html" %}
     <!-- jQuery 3 -->
-    <script src="{% static 'public/js/jquery.min.js' %}"></script>
+    <script src="{% static 'base/js/jquery.min.js' %}"></script>
 
     <!-- Google Font -->
     <link rel="stylesheet"
@@ -13,10 +13,10 @@
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
-{% include "public/partial/ajax_loader.html" %}
+{% include "base/partial/ajax_loader.html" %}
 <div class="wrapper">
-    {% include "public/meta/header.html" %}
-    {% include "public/meta/sidebar.html" %}
+    {% include "base/meta/header.html" %}
+    {% include "base/meta/sidebar.html" %}
     <!-- Content Wrapper. Contains page content -->
 
     <div class="content-wrapper">
@@ -24,9 +24,9 @@
         {% endblock %}
         <!-- /.content -->
     </div>
-    {% include "public/meta/footer.html" %}
+    {% include "base/meta/footer.html" %}
 
 </div>
-{% include "public/meta/scripts.html" %}
+{% include "base/meta/scripts.html" %}
 </body>
 </html>

@@ -1,5 +1,5 @@
 {% load static %}
-<form action="{% url 'forecaster' %}" id="foa" method="post">
+<form action="{% url 'results' 'F' %}" id="foa" method="post">
     {% csrf_token %}
     {{ form.page_type }}
     <div class="input-group input-group-sm">
@@ -13,31 +13,8 @@
                 {{ form.city }}
             </div>
             <div class="col-md-1 nopadding">
-                <button type="button" class="btn btn-info btn-flat" id="scrap">Go!</button>
+                <button type="submit" class="btn btn-info btn-flat" id="scrap">Go!</button>
             </div>
         </div>
     </div>
 </form>
-
-
-
-{% block javascript %}
-<script>
-
-    $("#scrap").click(function () {
-    var frm = $('#foa');
-
-      $.ajax({
-      type: "POST",
-        url: '/scrapper/F',
-        data: frm.serialize(),
-        dataType: 'json',
-        success: function (data) {
-            alert(data);
-        }
-      });
-
-    });
-
-</script>
-{% endblock %}
