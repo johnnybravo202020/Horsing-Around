@@ -1,11 +1,10 @@
 from bs4 import BeautifulSoup
 import urllib.request
+from urllib.error import HTTPError
 import datetime
 from ..enum import City
-import logging
-
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
+from .. import logger
+from .exception import PageDoesNotExist
 
 
 class BasePageScrapper:
@@ -35,11 +34,19 @@ class BasePageScrapper:
             self.set_url()
 
             # Get the html of the page that contains the results
-            self.html = urllib.request.urlopen(self.url).read()
-            logger.error('Page downloaded, scrapper is ready')
+            # The page might not exist or give an internal server error, therefore we have to watch out for HTTPError
+            try:
+                self.html = urllib.request.urlopen(self.url).read()
+                logger.info('Page downloaded, scrapper is ready')
+            except HTTPError:
+                raise PageDoesNotExist('Page does not exist! Please make sure page is available on TJK.org. Url: {'
+                                       '0}'.format(self.url))
+
         else:
             self.html = html
             self.url = url
+
+        self.is_valid_page()
 
     def set_url(self):
         pass
@@ -58,8 +65,8 @@ class BasePageScrapper:
     def get(self):
         pass
 
-    def is_found(self):
-        pass#if self.html
+    def is_valid_page(self):
+        pass
 
 
 class BaseRaceDayScrapper(BasePageScrapper):
@@ -100,7 +107,7 @@ class BaseRaceDayScrapper(BasePageScrapper):
         self.url = self.url.format(formatted_dated)
         # -- end url parsing --
 
-        logger.error(self.url)
+        logger.info(self.url)
 
     def get_race_divs(self):
         # Get the Soap object for easy scraping
@@ -121,10 +128,10 @@ class BaseRaceDayScrapper(BasePageScrapper):
         # Create an empty list to hold each race
         races = []
         # Process each race
-        logger.error('Processing each result')
+        logger.info('Processing each result')
 
         if self.get_past_statics:
-            logger.error('{0} races|get_past_statics is on, going to take a moment to complete!'.format(
+            logger.info('{0} races|get_past_statics is on, going to take a moment to complete!'.format(
                 len(self.race_divs)))
 
         for rDiv in self.race_divs:
@@ -176,7 +183,7 @@ class BaseRaceDayScrapper(BasePageScrapper):
 
                 if self.get_past_statics:
                     model.set_past_results()
-                    logger.error('{0} horse(s) remain'.format(len(horse_rows) - i))
+                    logger.info('{0} horse(s) remain'.format(len(horse_rows) - i))
 
                 # Append the model to the result list
                 results.append(model)
@@ -185,8 +192,13 @@ class BaseRaceDayScrapper(BasePageScrapper):
             races.append(results)
 
         # We got all the information about the race day in the given city and date. We can return the races list now
-        logger.error('Completed!')
+        logger.info('Completed!')
         return races
+
+    def is_valid_page(self):
+        if len(self.html) is 0:
+            raise PageDoesNotExist('Could not find the race! Please make sure race is available on TJK.org. Url: {'
+                                   '0}'.format(self.url))
 
     @classmethod
     def scrap_by_date(cls, city, date, get_past_statistics=False):

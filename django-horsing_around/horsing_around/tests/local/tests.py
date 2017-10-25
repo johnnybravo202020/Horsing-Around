@@ -1,10 +1,9 @@
 from django.test import TestCase
-
-import horsing_around.enum as enum
-import horsing_around.scrappers  # as scrappers
-import horsing_around.scrappers.row as row_scrapper
 from bs4 import BeautifulSoup
-from .models import FixtureTestData, ResultTestData, RaceDayTestData
+from ..models import FixtureTestData, ResultTestData, RaceDayTestData
+from ...enum import PageType, City
+from ...scrappers import ResultScrapper, FixtureScrapper, HorseScrapper, PageDoesNotExist
+from ...scrappers.row import ResultRowScrapper, FixtureRowScrapper
 
 
 class RowScrapperTestCase(TestCase):
@@ -32,10 +31,10 @@ class RowScrapperTestCase(TestCase):
         self.assertEqual(recorded_result, scrapped_result)
 
     def test_can_scrap_single_result_row(self):
-        self.assert_row_scrapper(ResultTestData, row_scrapper.ResultRowScrapper)
+        self.assert_row_scrapper(ResultTestData, ResultRowScrapper)
 
     def test_can_scrap_single_fixture_row(self):
-        self.assert_row_scrapper(FixtureTestData, row_scrapper.FixtureRowScrapper)
+        self.assert_row_scrapper(FixtureTestData, FixtureRowScrapper)
 
 
 class RaceDayScrapperTestCase(TestCase):
@@ -59,14 +58,22 @@ class RaceDayScrapperTestCase(TestCase):
                     self.assertEqual(recorded_result, scrapped_result)
 
     def test_can_scrap_race_day_result(self):
-        from ..enum import PageType
-        from ..scrappers import ResultScrapper
         self.assert_race_day(PageType.Result, ResultScrapper)
 
     def test_can_scrap_race_day_fixture(self):
-        from ..enum import PageType
-        from ..scrappers import FixtureScrapper
         self.assert_race_day(PageType.Fixture, FixtureScrapper)
+
+    def test_will_fail_on_invalid_result_page(self):
+        # There was no race run in Izmir at 2017-10-24 therefore PageDoesNotExist exception should be raised
+        self.assertRaises(PageDoesNotExist, ResultScrapper.scrap, City.Izmir, 2017, 10, 24)
+
+    def test_will_fail_on_invalid_fixture_page(self):
+        # There was no race run in Kocaeli at 2017-10-21 therefore PageDoesNotExist exception should be raised
+        self.assertRaises(PageDoesNotExist, FixtureScrapper.scrap, City.Kocaeli, 2017, 10, 21)
+
+    def test_will_fail_on_invalid_horse_page(self):
+        # There is no horse with the id: 545454 therefore PageDoesNotExist exception should be raised
+        self.assertRaises(PageDoesNotExist, HorseScrapper.scrap, 545454)
 
 
 class ResultTestDataTestCase(TestCase):

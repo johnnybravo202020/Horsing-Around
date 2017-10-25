@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
-#import ..models.actual #import Result, Fixture, Horse
 from ..enum import ManagerType, PageType
 
 
@@ -90,7 +89,6 @@ class BaseRaceDayRowScrapper(BaseRowScrapper):
         model.horse_mother_id = int(self.get_id_from_a(parent_links[1]))
 
         # Get the weight of the horse during the time of the race
-        #logger.error(self.get_column_content("Kilo"))
         model.horse_weight = self.get_column_content("Kilo")
 
         return model

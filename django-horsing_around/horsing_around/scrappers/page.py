@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from .row import FixtureRowScrapper, ResultRowScrapper, HorseRowScrapper
 from ..enum import PageType
 from .abstract import BaseRaceDayScrapper, BasePageScrapper
+from .exception import PageDoesNotExist
 
 
 class FixtureScrapper(BaseRaceDayScrapper):
@@ -63,4 +64,8 @@ class HorseScrapper(BasePageScrapper):
 
         return results
 
-
+    def is_valid_page(self):
+        raise Exception(self.html)
+        if len(self.html) is 0:
+            raise PageDoesNotExist('Could not find the horse! Please make sure horse is available on TJK.org. Url: {'
+                                   '0}'.format(self.url))

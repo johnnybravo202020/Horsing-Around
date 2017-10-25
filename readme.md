@@ -18,18 +18,13 @@ The way to win the grand prize is to correctly guess the winners of the designat
 ### Technical Summary
 The entire project planned around Python and [Django](https://www.djangoproject.com). 
 
-* django-horsing_around: Source code for the package
-* horsingaroundtest: A django project for automated tests
-* horsingaroundgui: GUI for presenting the data and forecasting
-
 Suggested interpreter is [Anaconda](https://www.anaconda.com) since it comes with ML and DL frameworks. For scrappers
  [BS](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) will be used. For future [Celery](http://www.celeryproject.org/) is going to be used in order to create workers that will scrap the statics automatically.
 
 ## Quick Guide
 ### Installation through pip
-* Download the package file 'horsing_around.tar.gz'
 * Add the package to your django project by calling the command:
-`pip install PATH\TO\THE\FILE\horsing_around.tar.gz `
+`-e git://github.com/egeaydin/Horsing-Around.git#egg=horsing_around&subdirectory=django-horsing_around`
 
 ### Usage
 Import the City enum
@@ -80,38 +75,7 @@ However,
     races_fixture = FixtureScrapper.scrap(City.Istanbul, year=2017, month=10, day=8, get_past_statistics=True)
 
     races_results = ResultScrapper.scrap_by_date(City.Ankara, datetime.date(2017, 10, 7), get_past_statistics=True)
-```
-
-### Testing
-There are two types of tests, first one is local and the other one is web tests. Local tests use the data in the local 
-sqlite database, and web tests are done to make sure the web site is not updated and data can still scrapped correctly. Local tests are really fast but web tests are not so much since they download html's from the web.
-
-* Download the package file 'horsing_around.tar.gz' and 'horsingaroundtest' directory inside the same directory.  
-    *__Note__: If the package and the test project directory are not the same, pip will be unable to locate the package.
-     If 
-    so, you can also modify the path in the requirements.txt file to match the current path of the package.*
-* Now install the required packages through pip.  
-    ##### Mac and Linux
-    Open a new terminal from the project directory:  
-    * `cd horsingaroundtest`
-    * `sudo pip install -r requirements.txt`
-    
-    ##### Windows
-    Open a new command prompt as administrator from the project directory:
-    * `cd horsingaroundtest`
-    * `pip install -r requirements.txt`
-    
-    And run:  
-    Local: `python manage.py test scrapper.tests.local`  
-    Web : `python manage.py test scrapper.tests.web`
-    
-
-### GUI
-* Download the package file 'horsing_around.tar.gz' and 'horsingaroundgui' directory inside the same directory
-* Now install the required packages through pip just like described as above in the 'Testing' section.
-* Open a new terminal or command prompt depending on the OS and go to the folder 'horsingaroundgui'
-* Run `python manage.py runserver`
-* Open a browser and go to the `http://127.0.0.1:8000/`
+```    
 
 ## Road Map
 * Write tests for scrappers(Ongoing)
