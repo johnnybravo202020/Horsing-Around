@@ -10,7 +10,6 @@ from django.template.loader import render_to_string
 
 class BaseScrapperForm(forms.Form):
     page_type = forms.CharField(widget=forms.HiddenInput())
-    exclude_fields = {'id', 'race_id', 'race_date', 'distance', 'city', 'horse_id', 'track_type'}
     template = NotImplemented
 
     def render_to_html_string(self):
@@ -46,17 +45,23 @@ class RaceDayScrapperForm(BaseScrapperForm):
         return page_type.scrapper.scrap_by_date(city, date), \
                "{0} for the race at {1} in {2}".format(page_type.name, date, city.name)
 
-
     def get_context(self, scrapped_data, title):
         models = list()
         for result in scrapped_data:
-            models.append(StatisticTableViewModel(result, *self.exclude_fields))
+            models.append(StatisticTableViewModel(result, *{'id',
+                                                            'race_id',
+                                                            'race_date',
+                                                            'distance',
+                                                            'city',
+                                                            'horse_id',
+                                                            'track_type'}))
 
         return {'title': title, 'races': models}
 
 
 class HorseScrapperForm(BaseScrapperForm):
     horse_id = forms.IntegerField()
+    template = 'base/partial/statistic_table.html'
 
     def scrap(self):
         page_type = PageType(self.cleaned_data['page_type'])
@@ -65,4 +70,7 @@ class HorseScrapperForm(BaseScrapperForm):
         return page_type.scrapper.scrap(horse_id), "Past results of the horse with the id: {0}".format(horse_id)
 
     def get_context(self, scrapped_data, title):
-        return {'title': title, 'model': StatisticTableViewModel(scrapped_data, *self.exclude_fields)}
+        return {'model': StatisticTableViewModel(scrapped_data,
+                                                 *{'id',
+                                                   'horse_id'},
+                                                 title=title)}
