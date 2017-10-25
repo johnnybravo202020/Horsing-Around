@@ -57,14 +57,13 @@ class HorseScrapper(BasePageScrapper):
 
         results = []
 
+        # If horse has no results recorded there will be only one row in the table and that row is meaningless to us
+        if len(result_table) is 1:
+            raise PageDoesNotExist('Horse exists but apparently there is no recorded result for the horse.')
+
         for result in result_table[:-1]:
             scrapper = HorseRowScrapper(result)
             model = scrapper.get()
             results.append(model)
 
         return results
-
-    def is_valid_page(self):
-        if len(self.html) is 0:
-            raise PageDoesNotExist('Could not find the horse! Please make sure horse is available on TJK.org. Url: {'
-                                   '0}'.format(self.url))

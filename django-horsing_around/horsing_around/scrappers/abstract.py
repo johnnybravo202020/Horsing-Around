@@ -66,7 +66,9 @@ class BasePageScrapper:
         pass
 
     def is_valid_page(self):
-        pass
+        if len(self.html) is 0:
+            raise PageDoesNotExist('Could not find the race! Please make sure race is available on TJK.org. Url: {'
+                                   '0}'.format(self.url))
 
 
 class BaseRaceDayScrapper(BasePageScrapper):
@@ -194,11 +196,6 @@ class BaseRaceDayScrapper(BasePageScrapper):
         # We got all the information about the race day in the given city and date. We can return the races list now
         logger.info('Completed!')
         return races
-
-    def is_valid_page(self):
-        if len(self.html) is 0:
-            raise PageDoesNotExist('Could not find the race! Please make sure race is available on TJK.org. Url: {'
-                                   '0}'.format(self.url))
 
     @classmethod
     def scrap_by_date(cls, city, date, get_past_statistics=False):

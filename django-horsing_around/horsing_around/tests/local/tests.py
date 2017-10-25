@@ -75,6 +75,10 @@ class RaceDayScrapperTestCase(TestCase):
         # There is no horse with the id: 545454 therefore PageDoesNotExist exception should be raised
         self.assertRaises(PageDoesNotExist, HorseScrapper.scrap, 545454)
 
+    def test_will_fail_on_horse_page_with_no_results(self):
+        # There is no horse with the id: 545454 therefore PageDoesNotExist exception should be raised
+        self.assertRaises(PageDoesNotExist, HorseScrapper.scrap, 2)
+
 
 class ResultTestDataTestCase(TestCase):
     def test_str(self):
