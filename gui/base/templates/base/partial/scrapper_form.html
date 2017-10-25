@@ -1,17 +1,14 @@
 {% load static %}
-<form action="{% url 'results' 'F' %}" id="foa" method="post">
+<form action="{% url 'results' %}" id="foa" method="post">
     {% csrf_token %}
     {{ form.page_type }}
     <div class="input-group input-group-sm">
         <div class="row">
-            <div class="col-md-5 nopadding">
-                {{ form.date.errors }}
-                {{ form.date }}
-            </div>
-            <div class="col-md-3 nopadding">
-                {{ form.city.errors }}
-                {{ form.city }}
-            </div>
+            {% for field in form.visible_fields  %}
+                    <div class="col-md-5 nopadding">
+                        {{ field }}
+                    </div>
+            {% endfor %}
             <div class="col-md-1 nopadding">
                 <button type="submit" class="btn btn-info btn-flat" id="scrap">Go!</button>
             </div>

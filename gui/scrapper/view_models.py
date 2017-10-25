@@ -1,10 +1,10 @@
 class StatisticTableViewModel:
-    def __init__(self, result_set):
+    def __init__(self, result_set, *exclude_fields):
 
         # Get the first result for getting general race_info in order to construct the table title
         first = result_set[0]
         self.title = "{0} meters, {1}".format(first.distance, first.track_type)
-        self.rows = [s.get_pure_dict('id', 'race_id', 'race_date', 'distance', 'city', 'horse_id', 'track_type') for s
+        self.rows = [s.get_pure_dict(*exclude_fields) for s
                      in
                      result_set]
         self.col_headers = self.prettify_keys(self.rows[0].keys())

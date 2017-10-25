@@ -1,4 +1,4 @@
-<aside class="main-sidebar">
+<aside class="main-sidebar" style="width:350px">
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
@@ -27,7 +27,9 @@
                                 <i class="fa fa-angle-left pull-right"></i>
                             </span>
                         </a>
-                        asdadssdaasdasd
+                        <ul class="treeview-menu">
+                        {% include "base/partial/scrapper_form.html" with form=result_form %}
+                        </ul>
                     </li>
                     <li class="treeview">
                         <a href="#"><i class="fa fa-circle-o"></i> Horse
@@ -35,7 +37,9 @@
                                 <i class="fa fa-angle-left pull-right"></i>
                             </span>
                         </a>
-                        asdadssdaasdasd
+                        <ul class="treeview-menu">
+                        {% include "base/partial/scrapper_form.html" with form=horse_form %}
+                        </ul>
                     </li>
                 </ul>
             </li>

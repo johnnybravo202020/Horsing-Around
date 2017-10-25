@@ -16,7 +16,7 @@ $(document).ready(function () {
     var form = $({{ form|safe }}).serialize();
     $.ajax({
         type: "POST",
-        url: '{% url 'scrap' 'F' %}',
+        url: '{% url 'scrap' %}',
         data: form,
         success: function (data) {
             console.log(data)
