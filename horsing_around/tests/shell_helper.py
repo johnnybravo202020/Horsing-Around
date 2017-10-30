@@ -3,7 +3,6 @@ from ..scrappers import FixtureScrapper, HorseScrapper
 import datetime
 from ..enum import City
 
-
 def save_test_data():
     scrapper = FixtureScrapper(City.Ankara, datetime.datetime(2017, 10, 28), get_past_statistics=True)
     races = scrapper.get()
@@ -33,14 +32,15 @@ def set_order_column():
             f.save()
 
 
-def save_predictions():
-    race_day = RaceDayTestData.objects.get(id=46)
+def save_predictions(race_day_test_data_id):
+    race_day = RaceDayTestData.objects.get(id=1)
     fixtures = race_day.fixtures.all()
     data_model = race_day.data_model
 
     for race in data_model.races:
-        for prediction in race.forecasts[0].forecast:
-            p_test_data = PredictionTestData(fixture=fixtures.get(horse_id=prediction.horse_id,
-                                                                  race_id=race.id),
-                                             prediction=str(prediction.prediction))
-            p_test_data.save()
+            for forecast in race.forecasts:
+                for prediction in forecast:
+                    p_test_data = PredictionTestData(fixture=fixtures.get(horse_id=prediction.horse_id,
+                                                                          race_id=race.id),
+                                                     prediction=str(prediction.prediction))
+                    p_test_data.save()

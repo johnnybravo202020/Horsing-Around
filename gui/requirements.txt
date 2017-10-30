@@ -1,2 +1,0 @@
-Django==1.11.4
--e git://github.com/egeaydin/Horsing-Around.git#egg=horsing_around&subdirectory=django-horsing_around
