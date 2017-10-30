@@ -31,9 +31,21 @@ class HorseScrapper(BasePageScrapper):
     row_scrapper = HorseRowScrapper
     page_type = PageType.Horse
 
+    horse_info = ValueError('No value set yet')
+
     def __init__(self, horse_id, html='', url=''):
         self.horse_id = horse_id
         super(HorseScrapper, self).__init__(html, url)
+
+        # Get the Soap object for easy scraping
+        soup = BeautifulSoup(self.html, "lxml")
+
+        self.horse_info = soup.find("div", class_='kunye-container')
+
+        # Get the table contains horse's results
+        result_table = soup.find("table").find_all('tr')
+
+        self.rows = result_table[:-1]
 
     def set_url(self):
         self.url = 'http://www.tjk.org/TR/YarisSever/Query/ConnectedPage/AtKosuBilgileri?1=1&QueryParameter_AtId={' \
@@ -50,20 +62,23 @@ class HorseScrapper(BasePageScrapper):
         return scrapper.get()
 
     def get(self):
-        # Get the Soap object for easy scraping
-        soup = BeautifulSoup(self.html, "lxml")
-        # Get the table contains horse's results
-        result_table = soup.find("table").find_all('tr')
+
+        horse_name = self.get_info('İsim')
+        horse_age = self.get_info('Yaş')
 
         results = []
 
-        # If horse has no results recorded there will be only one row in the table and that row is meaningless to us
-        if len(result_table) is 1:
-            raise PageDoesNotExist('Horse exists but apparently there is no recorded result for the horse.')
-
-        for result in result_table[:-1]:
+        for result in self.rows:
             scrapper = HorseRowScrapper(result)
             model = scrapper.get()
+
+            model.horse_id = self.horse_id
+            model.horse_name = horse_name
+            model.horse_age = horse_age
+
             results.append(model)
 
         return results
+
+    def get_info(self, key_text):
+        return self.horse_info.find("span", class_='key', text=key_text).find_next_sibling().text

@@ -18,5 +18,9 @@ class TestCommand(test):
                            DATABASES=django_settings.DATABASES,
                            LOGGING=django_settings.LOGGING)
 
+        from django.core.management import call_command
         django.setup()
+        call_command('makemigrations', 'tests')
+        call_command('migrate')
+        # call_command('shell')
         test.run(self)

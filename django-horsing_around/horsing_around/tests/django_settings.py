@@ -28,6 +28,7 @@ DEBUG = False
 
 # Application definition
 INSTALLED_APPS = [
+    'horsing_around',
     'horsing_around.tests',
 ]
 
@@ -56,5 +57,9 @@ LOGGING = {
             'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
+        'horsing_around': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        }
     },
 }

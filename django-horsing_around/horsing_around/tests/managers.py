@@ -9,4 +9,5 @@ class TestDataManager(models.Manager):
         """
         # Pick the lucky index and return the value
         random_index = randint(0, self.count() - 1)
+
         return self.all()[random_index]

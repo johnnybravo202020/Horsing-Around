@@ -28,6 +28,8 @@ class BasePageScrapper:
 
     url = ''
 
+    rows = list()
+
     def __init__(self, html='', url=''):
         # Means we have to download the html source our selves
         if not html:
@@ -130,13 +132,15 @@ class BaseRaceDayScrapper(BasePageScrapper):
         # Create an empty list to hold each race
         races = []
         # Process each race
-        logger.info('Processing each result')
+        logger.info('Processing each race')
 
         if self.get_past_statics:
             logger.info('{0} races|get_past_statics is on, going to take a moment to complete!'.format(
                 len(self.race_divs)))
 
-        for rDiv in self.race_divs:
+        for race_index, rDiv in enumerate(self.race_divs):
+            logger.info('{0} race(s) remain'.format(len(self.race_divs) - race_index))
+
             # Get the raw race details
             race_id = int(rDiv.get('id'))
 
@@ -163,13 +167,12 @@ class BaseRaceDayScrapper(BasePageScrapper):
             track_type = race_info[1].split(r"\r")[0]
 
             # Common data for the race is ready, time to get the results get the result of each horse in the table
-            horse_rows = rDiv.find("tbody").find_all("tr")
+            rows = rDiv.find("tbody").find_all("tr")
 
             # Create an empty list to hold each result for this race
             results = []
-
             # Go through the each result and process
-            for i, row in enumerate(horse_rows):
+            for i, row in enumerate(rows):
                 # Initialize the scrapper for a single row
                 scrapper = self.row_scrapper(row)
 
@@ -184,15 +187,15 @@ class BaseRaceDayScrapper(BasePageScrapper):
                 model.race_date = self.date
 
                 if self.get_past_statics:
+                    logger.info('{0} horse(s) remain'.format(len(rows) - i))
                     model.set_past_results()
-                    logger.info('{0} horse(s) remain'.format(len(horse_rows) - i))
 
                 # Append the model to the result list
                 results.append(model)
-
             # This point we have all the results of one race we can append it to the race list
             races.append(results)
 
+            self.rows.append(rows)
         # We got all the information about the race day in the given city and date. We can return the races list now
         logger.info('Completed!')
         return races

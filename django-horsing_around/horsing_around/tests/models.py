@@ -2,14 +2,18 @@ from django.db import models
 from .managers import TestDataManager
 from horsing_around.enum import City, PageType
 from horsing_around.models.mixin import ResultMixin
-from horsing_around.models.abstract import BaseRaceResult
+from horsing_around.models.abstract import BasePage
+import importlib
+from itertools import groupby
+from ..forecaster import RaceDay
 
 
-class BaseTestData(BaseRaceResult):
+class BaseTestData(BasePage):
     class Meta:
         abstract = True
 
-    html_row = models.TextField()
+    objects = TestDataManager()
+    html_row = models.TextField(null=True)
 
     scrapper = NotImplemented
 
@@ -43,6 +47,11 @@ class BaseTestData(BaseRaceResult):
     def __str__(self):
         return "|".join(k + ': ' + str(v) for k, v in self.get_pure_dict('html_row', 'id').items())
 
+    @staticmethod
+    def get_from_page_type(page_type):
+        scrapper_module = importlib.import_module("horsing_around.tests.models")
+        return getattr(scrapper_module, '{0}TestData'.format(page_type.name))
+
 
 class RaceDayTestData(models.Model):
     """
@@ -59,23 +68,44 @@ class RaceDayTestData(models.Model):
 
     def get_scrapper(self):
         scrapper = PageType(self.page_type).scrapper
-        #raise Exception(type(scrapper))
         return scrapper(City(self.city_id), self.date, self.html_source, self.url)
+
+    @classmethod
+    def from_scrapper(cls, scrapper):
+        return cls(city_id=scrapper.city.value,
+                   date=scrapper.date,
+                   html_source=scrapper.html,
+                   url=scrapper.url,
+                   page_type=scrapper.page_type.value)
+
+    @property
+    def data_model(self):
+        races = []
+        for k, g in groupby(self.fixtures.all(), lambda r: r.race_id):
+            races.append(list(g))
+        return RaceDay(races)
 
     def __str__(self):
         return "{0}: In {1}, at {2}".format(PageType(self.page_type).name, City(self.city_id).name, self.date)
 
 
 class ResultTestData(BaseTestData, ResultMixin):
-    objects = TestDataManager()
     race_day = models.ForeignKey(RaceDayTestData, related_name='results')
 
 
 class FixtureTestData(BaseTestData):
-    objects = TestDataManager()
     race_day = models.ForeignKey(RaceDayTestData, related_name='fixtures')
 
+    @classmethod
+    def from_actual(cls, actual, html_row):
+        delattr(actual, 'past_results')
+        return super(FixtureTestData, cls).from_actual(actual, html_row)
 
-class HorseTestData(BaseTestData):
-    objects = TestDataManager()
 
+class HorseTestData(BaseTestData, ResultMixin):
+    fixture = models.ForeignKey(FixtureTestData, related_name='past_results')
+
+
+class PredictionTestData(models.Model):
+    fixture = models.ForeignKey(FixtureTestData, related_name='prediction')
+    prediction = models.CharField(max_length=50)

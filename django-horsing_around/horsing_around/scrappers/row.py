@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
 from ..enum import ManagerType, PageType
+import datetime
 
 
 class BaseRowScrapper:
@@ -61,6 +62,9 @@ class BaseRaceDayRowScrapper(BaseRowScrapper):
 
     def get(self):
         model = super(BaseRaceDayRowScrapper, self).get()
+        # The second column in the table contains the order of the horse
+        model.order = self.get_column_content('SiraId')
+
         # The third column in the table contains the name of the horse and a link that goes to that horse's page.
         # Also the link will have the id of the horse and the abbreviations that come after the name which tells
         # status information, for example whether the horse will run with an eye patch and etc.
@@ -174,7 +178,7 @@ class HorseRowScrapper(BaseRowScrapper):
 
         date_and_race_id = self.columns[0]
 
-        model.race_date = date_and_race_id.text
+        model.race_date = datetime.datetime.strptime(date_and_race_id.text, '\n%d.%m.%Y ')
 
         try:
             race_url = date_and_race_id.find('a', href=True)['href']
@@ -186,14 +190,14 @@ class HorseRowScrapper(BaseRowScrapper):
             # Some results don't have the races linked to them, so we mark it as missing
             model.race_id = -1
 
-        model.city = self.columns[1].text
-        model.distance = self.columns[2].text
-        model.track_type = self.columns[3].text
-        model.result = self.columns[4].text
-        model.time = self.columns[5].text
-        model.weight = self.columns[6].text
+        model.city = str(self.get_column(1))
+        model.distance = self.get_column(2)
+        model.track_type = str(self.get_column(3))
+        model.result = self.get_column(4)
+        model.time = str(self.get_column(5))
+        model.horse_weight = str(self.get_column(6))
+        model.handicap = self.get_column(14)
 
-        model.handicap = self.columns[14].text if len(self.columns[14].text) > 0 else -1
         return model
 
     def get_manager_id(self, _type):
@@ -216,3 +220,8 @@ class HorseRowScrapper(BaseRowScrapper):
         except:
             raise Exception(self.row)
 
+    def get_column(self, index):
+        column = self.columns[index].stripped_strings
+        for col in column:
+            return col
+        return -1

@@ -1,8 +1,8 @@
-from .abstract import BaseRaceResult, BaseModel
+from .abstract import BasePage, BaseRaceDay
 from .mixin import ResultMixin
 
 
-class Result(BaseRaceResult, ResultMixin):
+class Result(BaseRaceDay, ResultMixin):
     class Meta:
         app_label = 'horsing_around'
 
@@ -10,7 +10,7 @@ class Result(BaseRaceResult, ResultMixin):
         return "Result:" + super(Result, self).__str__()
 
 
-class Fixture(BaseRaceResult):
+class Fixture(BaseRaceDay):
     class Meta:
         app_label = 'horsing_around'
 
@@ -18,7 +18,7 @@ class Fixture(BaseRaceResult):
         return "Fixture:" + super(Fixture, self).__str__()
 
 
-class Horse(BaseModel, ResultMixin):
+class Horse(BasePage, ResultMixin):
     class Meta:
         app_label = 'horsing_around'
 
