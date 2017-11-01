@@ -7,7 +7,7 @@ class RaceForecast(list):
         threshold = 50
 
         valid_predictions = [p for p in prediction_views if p.prediction > threshold]
-        invalid_predictions = [p for p in prediction_views if p.prediction >= threshold]
+        invalid_predictions = [p for p in prediction_views if p.prediction <= threshold]
 
         self.extend(sorted(valid_predictions, key=lambda x: x.prediction))
         self.extend(invalid_predictions)
