@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import urllib.request
 from urllib.error import HTTPError
 import datetime
-from ..enum import City
+from .. import City
 from .. import logger
 from .exception import PageDoesNotExist
 

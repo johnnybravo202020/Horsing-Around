@@ -4,7 +4,7 @@
 
 from bs4 import BeautifulSoup
 from .row import FixtureRowScrapper, ResultRowScrapper, HorseRowScrapper
-from ..enum import PageType
+from .. import PageType
 from .abstract import BaseRaceDayScrapper, BasePageScrapper
 from .exception import PageDoesNotExist
 

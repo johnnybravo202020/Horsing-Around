@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
-from ..enum import ManagerType, PageType
+from .. import ManagerType, PageType
 import datetime
 
 
@@ -62,9 +62,6 @@ class BaseRaceDayRowScrapper(BaseRowScrapper):
 
     def get(self):
         model = super(BaseRaceDayRowScrapper, self).get()
-        # The second column in the table contains the order of the horse
-        model.order = self.get_column_content('SiraId')
-
         # The third column in the table contains the name of the horse and a link that goes to that horse's page.
         # Also the link will have the id of the horse and the abbreviations that come after the name which tells
         # status information, for example whether the horse will run with an eye patch and etc.
@@ -72,9 +69,7 @@ class BaseRaceDayRowScrapper(BaseRowScrapper):
         horse_name_html = self.get_column(self.horse_name_class_name).find('a')
 
         # first element is the name it self, others are the abbreviations, so we get the first and assign it as name
-        # after trimming a little. The reason of the trim is to get rid of the number in the parenthesis
-        # Example "KARAHİNDİBAYA (7)" -> "KARAHİNDİBAYA"
-        model.horse_name = horse_name_html.contents[0].split("(")[0]
+        model.horse_name = horse_name_html.contents[0]
 
         # Now get the id of the horse from that url
         model.horse_id = int(self.get_id_from_a(horse_name_html))
@@ -135,6 +130,13 @@ class FixtureRowScrapper(BaseRaceDayRowScrapper):
     td_class_base = 'gunluk-GunlukYarisProgrami-'
     page_type = PageType.Fixture
 
+    def get(self):
+        fixture = super(FixtureRowScrapper, self).get()
+
+        fixture.order = int(self.get_column_content('SiraId'))
+
+        return fixture
+
 
 class ResultRowScrapper(BaseRaceDayRowScrapper):
     """
@@ -144,8 +146,17 @@ class ResultRowScrapper(BaseRaceDayRowScrapper):
     td_class_base = 'gunluk-GunlukYarisSonuclari-'
     page_type = PageType.Result
 
-    def get(self, is_test=False):
+    def get(self):
         result = super(ResultRowScrapper, self).get()
+
+        # Horses name still has the order that horse started the race in the first place.
+        # Example "KARAHİNDİBAYA (7)"
+        horse_name_and_order = result.horse_name.split("(")
+
+        result.horse_name = horse_name_and_order[0]
+
+        # Example after split: "7)"
+        result.order = int(horse_name_and_order[1].replace(')', ''))
 
         # Get the result of the horse from the second column
         result.result = self.get_column_content("SONUCNO")

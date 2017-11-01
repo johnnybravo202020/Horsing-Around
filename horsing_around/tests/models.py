@@ -1,6 +1,7 @@
 from django.db import models
 from .managers import TestDataManager
-from horsing_around.enum import City, PageType
+from .. import City, PageType
+from horsing_around.models import Horse, Result, Fixture
 from horsing_around.models.mixin import ResultMixin
 from horsing_around.models.abstract import BasePage
 import importlib
@@ -14,8 +15,11 @@ class BaseTestData(BasePage):
 
     objects = TestDataManager()
     html_row = models.TextField(null=True)
-
     scrapper = NotImplemented
+    actual_model = NotImplemented
+
+    def to_actual(self, *exclude_fields):
+        return self.actual_model(**self.get_pure_dict(*exclude_fields))
 
     @classmethod
     def from_actual(cls, actual, html_row):
@@ -30,27 +34,28 @@ class BaseTestData(BasePage):
 
     def __eq__(self, other):
         self_as_dict = self.get_pure_dict()
-
         for key, value in other.get_pure_dict().items():
             other_value = self_as_dict[key]
             if other_value != value:
-                print('Value of key: {0} is not equal to other value. ({1}<value {2}, {3}<value {4}>)'.
-                      format(key,
-                             type(value),
-                             value,
-                             type(other_value),
-                             other_value))
+                raise Exception('Value of key: {0} is not equal to other value. ({1}<value {2}, {3}<value {4}>)'.
+                                format(key,
+                                       type(value),
+                                       value,
+                                       type(other_value),
+                                       other_value))
 
                 return False
         return True
 
-    def __str__(self):
-        return "|".join(k + ': ' + str(v) for k, v in self.get_pure_dict('html_row', 'id').items())
 
-    @staticmethod
-    def get_from_page_type(page_type):
-        scrapper_module = importlib.import_module("horsing_around.tests.models")
-        return getattr(scrapper_module, '{0}TestData'.format(page_type.name))
+def __str__(self):
+    return "|".join(k + ': ' + str(v) for k, v in self.get_pure_dict('html_row', 'id').items())
+
+
+@staticmethod
+def get_from_page_type(page_type):
+    scrapper_module = importlib.import_module("horsing_around.tests.models")
+    return getattr(scrapper_module, '{0}TestData'.format(page_type.name))
 
 
 class RaceDayTestData(models.Model):
@@ -91,10 +96,12 @@ class RaceDayTestData(models.Model):
 
 class ResultTestData(BaseTestData, ResultMixin):
     race_day = models.ForeignKey(RaceDayTestData, related_name='results')
+    actual_model = Result
 
 
 class FixtureTestData(BaseTestData):
     race_day = models.ForeignKey(RaceDayTestData, related_name='fixtures')
+    actual_model = Fixture
 
     @classmethod
     def from_actual(cls, actual, html_row):
@@ -104,6 +111,7 @@ class FixtureTestData(BaseTestData):
 
 class HorseTestData(BaseTestData, ResultMixin):
     fixture = models.ForeignKey(FixtureTestData, related_name='past_results')
+    actual_model = Horse
 
 
 class PredictionTestData(models.Model):

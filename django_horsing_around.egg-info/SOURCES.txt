@@ -8,7 +8,7 @@ django_horsing_around.egg-info/requires.txt
 django_horsing_around.egg-info/top_level.txt
 horsing_around/__init__.py
 horsing_around/apps.py
-horsing_around/enum.py
+horsing_around/enums.py
 horsing_around/forecaster/__init__.py
 horsing_around/forecaster/data_models/__init__.py
 horsing_around/forecaster/data_models/forecast.py

@@ -1,7 +1,6 @@
 from django.test import TestCase
 from horsing_around.scrappers import ResultScrapper, FixtureScrapper
-from horsing_around import City
-from horsing_around.enum import PageType
+from ... import City, PageType
 from bs4 import BeautifulSoup
 from ..models import RaceDayTestData
 from ..string_util import turkish_chars_to_ascii_chars

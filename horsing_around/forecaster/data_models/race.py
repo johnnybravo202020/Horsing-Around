@@ -1,5 +1,5 @@
 from ..regression import LinearRegression
-from ...enum import City
+from ... import City
 
 
 class RaceDay:

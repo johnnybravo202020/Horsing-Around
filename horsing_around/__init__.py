@@ -1,4 +1,4 @@
 import logging
-from .enum import City, PageType
+from .enums import City, PageType, ManagerType
 
 logger = logging.getLogger(__name__)

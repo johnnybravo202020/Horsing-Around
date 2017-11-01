@@ -20,7 +20,7 @@ class TestCommand(test):
 
         from django.core.management import call_command
         django.setup()
-        call_command('makemigrations', 'tests')
-        call_command('migrate')
-        # call_command('shell')
+        # call_command('makemigrations', 'tests')
+        # call_command('migrate')
+        call_command('shell')
         test.run(self)

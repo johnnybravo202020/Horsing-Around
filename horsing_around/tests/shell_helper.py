@@ -1,7 +1,8 @@
-from .models import FixtureTestData, RaceDayTestData, HorseTestData, PredictionTestData
+from .models import FixtureTestData, RaceDayTestData, HorseTestData, PredictionTestData, ResultTestData
 from ..scrappers import FixtureScrapper, HorseScrapper
 import datetime
-from ..enum import City
+from .. import City, PageType
+
 
 def save_test_data():
     scrapper = FixtureScrapper(City.Ankara, datetime.datetime(2017, 10, 28), get_past_statistics=True)
@@ -32,8 +33,23 @@ def set_order_column():
             f.save()
 
 
+def update_race_day():
+    race_days = RaceDayTestData.objects.all()
+    for race_day in race_days:
+        results = PageType(race_day.page_type).scrapper(city=City(race_day.city_id), date=race_day.date,
+                                                        html=race_day.html_source, url=race_day.url)
+        for race in results.get():
+            for res in race:
+                import importlib
+                model_module = importlib.import_module("horsing_around.tests.models")
+
+                result = getattr(model_module, '{0}TestData'.format(PageType(race_day.page_type).name)).objects.get(horse_id=res.horse_id, race_id=res.race_id)
+                #result.horse_weight = res.horse_weight
+                #result.save()
+
+
 def save_predictions(race_day_test_data_id):
-    race_day = RaceDayTestData.objects.get(id=1)
+    race_day = RaceDayTestData.objects.get(id=race_day_test_data_id)
     fixtures = race_day.fixtures.all()
     data_model = race_day.data_model
 

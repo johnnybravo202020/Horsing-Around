@@ -29,18 +29,11 @@ class BasePage(models.Model):
     def get_pure_dict(self, *remove_keys):
         # We need to have a separate dictionary because we are going to pop keys and we need to avoid changing the
         # original object
-        _dict = copy.deepcopy(self.__dict__)
-        for key in remove_keys:
-            _dict.pop(key)
+        ignore_keys = ['_state', 'html_row'] + list(remove_keys)
 
-        for _pop in ['_state', '_django_version']:
-            try:
-                _dict.pop(_pop)
-            except KeyError:
-                # No need to handle since we generally do not care about _state
-                pass
+        filtered_dict = dict((k, v) for k, v in self.__dict__.items() if k not in ignore_keys)
 
-        return _dict
+        return filtered_dict
 
     def __str__(self):
         return "|".join(k + ': ' + repr(str(v)) for k, v in self.get_pure_dict('id').items())
