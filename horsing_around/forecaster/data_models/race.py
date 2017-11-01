@@ -30,7 +30,7 @@ class Race:
         self.append_forecast(LinearRegression)
 
     def append_forecast(self, machine):
-        machine = LinearRegression(horses=self.horses, distance=self.distance)
+        machine = LinearRegression(horses=self.horses, distance=self.distance, track_type=self.track_type)
         self.forecasts.append(machine.forecast())
 
     def __str__(self):

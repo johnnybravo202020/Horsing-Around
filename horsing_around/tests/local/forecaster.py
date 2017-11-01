@@ -17,5 +17,3 @@ class RegressionTestCase(TestCase):
                     # Getting the pre-saved prediction to compare
                     prediction_test_data = fixtures.get(race_id=race.id, horse_id=prediction.horse_id).prediction.get()
                     self.assertEqual(str(prediction.prediction), prediction_test_data.prediction)
-
-        raise Exception(ls)

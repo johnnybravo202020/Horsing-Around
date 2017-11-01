@@ -20,7 +20,9 @@ class RaceForecast(list):
 
 
 class Prediction:
-    def __init__(self, horse_id, horse_name, prediction):
+    def __init__(self, horse_id, horse_name, prediction, result_count):
         self.horse_id = horse_id
         self.horse_name = horse_name
         self.prediction = prediction
+        self.result_count = result_count
+
