@@ -1,6 +1,6 @@
 import os
 from setuptools import find_packages, setup
-from horsing_around.tests import TestCommand
+from horsing_around.tests.test_command import TestCommand
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
