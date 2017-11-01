@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression as SKLearnLinearRegression
-from ...scrappers import FixtureScrapper
 from ..data_models.forecast import Prediction, RaceForecast
 from ..data_models.util import TrainingSet
 
