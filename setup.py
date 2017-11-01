@@ -11,7 +11,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='django-horsing_around',
     version='0.1.2',
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests",)),
     include_package_data=True,
     description='Scraps data from the official web site of the horse races run in Turkey, in order to forecast the race results',
     long_description=README,
