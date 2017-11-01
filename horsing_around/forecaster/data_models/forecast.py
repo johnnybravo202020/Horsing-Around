@@ -1,7 +1,16 @@
 class RaceForecast(list):
     def __init__(self, title, prediction_views):
         self.title = title
-        self.extend(sorted(prediction_views, key=lambda x: x.prediction, reverse=True))
+
+        # Some horses might not have enough past statistics to forecast, or some predictions might be ridiculously
+        # low, therefore we push predictions less then 50 seconds to end of the list
+        threshold = 50
+
+        valid_predictions = [p for p in prediction_views if p.prediction > threshold]
+        invalid_predictions = [p for p in prediction_views if p.prediction >= threshold]
+
+        self.extend(sorted(valid_predictions, key=lambda x: x.prediction))
+        self.extend(invalid_predictions)
 
     def __str__(self):
         rtn = ""
