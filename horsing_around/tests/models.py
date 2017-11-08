@@ -86,8 +86,14 @@ class RaceDayTestData(models.Model):
     @property
     def data_model(self):
         races = []
-        for k, g in groupby(self.fixtures.all(), lambda r: r.race_id):
-            races.append(list(g))
+        for k, race in groupby(self.fixtures.all(), lambda r: r.race_id):
+            # Make all past results to list
+            _race = []
+            for index, result in enumerate(race):
+                actual_result = result.to_actual('race_day_id', '_race_day_cache')
+                actual_result.past_results = list(result.past_results.all())
+                _race.append(actual_result)
+            races.append(_race)
         return RaceDay(races)
 
     def __str__(self):

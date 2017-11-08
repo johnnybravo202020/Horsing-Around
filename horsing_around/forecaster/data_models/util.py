@@ -20,3 +20,6 @@ class TrainingSet:
 
         self.x = np.array(x)[:, np.newaxis]
         self.y = np.array(y)
+
+    def validate(self):
+        return len(self.x) > 0 and len(self.y) > 0

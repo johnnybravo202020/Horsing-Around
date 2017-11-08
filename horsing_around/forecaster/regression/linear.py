@@ -15,20 +15,19 @@ class LinearRegression:
     def forecast(self):
         predictions = list()
         for result in self.horses:
-            prediction = -1
             horse_results = result.past_results
             if horse_results:
                 training_set = TrainingSet(horse_results, self.track_type)
+                if training_set.validate():
+                    machine = SKLearnLinearRegression()
+                    machine.fit(training_set.x, training_set.y)
 
-                machine = SKLearnLinearRegression()
-                machine.fit(training_set.x, training_set.y)
+                    prediction = machine.predict(self.distance)[0]
 
-                prediction = machine.predict(self.distance)[0]
-
-            predictions.append(Prediction(horse_id=result.horse_id,
-                                          horse_name=result.horse_name,
-                                          prediction=prediction,
-                                          result_count="{0}/{1}".format(len(training_set.x), len(horse_results))))
+                    predictions.append(Prediction(horse_id=result.horse_id,
+                                                  horse_name=result.horse_name,
+                                                  prediction=prediction,
+                                                  result_count="{0}/{1}".format(len(training_set.x), len(horse_results))))
 
         return RaceForecast('Linear Regression', predictions)
 
