@@ -16,7 +16,7 @@ class LinearRegression:
         predictions = list()
         for result in self.horses:
             prediction = -1
-            horse_results = result.past_results.all()
+            horse_results = result.past_results
             if horse_results:
                 training_set = TrainingSet(horse_results, self.track_type)
 
