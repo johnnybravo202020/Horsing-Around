@@ -40,9 +40,11 @@ class BasePageScrapper:
             try:
                 self.html = urllib.request.urlopen(self.url).read()
                 logger.info('Page downloaded, scrapper is ready')
-            except HTTPError:
-                raise PageDoesNotExist('Page does not exist! Please make sure page is available on TJK.org. Url: {'
-                                       '0}'.format(self.url))
+            except HTTPError as error:
+                error_test = 'error: {0} it might be because the page you looking for might not exist! Please make ' \
+                             'sure page is available on TJK.org. Url: {1}'.format(error, self.url)
+                logger.info(error_test)
+                raise PageDoesNotExist(error_test)
 
         else:
             self.html = html
@@ -222,4 +224,3 @@ class BaseRaceDayScrapper(BasePageScrapper):
         :return: Returns the results of the desired race
         """
         return cls.scrap_by_date(city, datetime.datetime(year, month, day), get_past_statistics)
-

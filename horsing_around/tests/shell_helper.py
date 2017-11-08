@@ -5,7 +5,7 @@ from .. import City, PageType
 
 
 def save_test_data():
-    scrapper = FixtureScrapper(City.Ankara, datetime.datetime(2017, 10, 28), get_past_statistics=True)
+    scrapper = FixtureScrapper(City.Istanbul, datetime.datetime(2017, 8, 11), get_past_statistics=True)
     races = scrapper.get()
     race_day = RaceDayTestData.from_scrapper(scrapper)
     race_day.save()
