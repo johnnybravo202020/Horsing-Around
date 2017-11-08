@@ -9,5 +9,5 @@ import datetime
 
 class RaceDayScrapperTestCase(TestCase):
     def test_can_get_past_results_1(self):
-        res = FixtureScrapper.scrap(City.Istanbul, 2017, 8, 11, get_past_statistics=True)
+        res = FixtureScrapper.scrap(City.Istanbul, 2017, 11, 8, get_past_statistics=True)
         raise Exception(res)

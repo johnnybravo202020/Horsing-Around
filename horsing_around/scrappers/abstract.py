@@ -5,6 +5,7 @@ import datetime
 from .. import City
 from .. import logger
 from .exception import PageDoesNotExist
+import time
 
 
 class BasePageScrapper:
@@ -35,16 +36,18 @@ class BasePageScrapper:
         if not html:
             self.set_url()
 
-            # Get the html of the page that contains the results
-            # The page might not exist or give an internal server error, therefore we have to watch out for HTTPError
-            try:
-                self.html = urllib.request.urlopen(self.url).read()
-                logger.info('Page downloaded, scrapper is ready')
-            except HTTPError as error:
-                error_test = 'error: {0} it might be because the page you looking for might not exist! Please make ' \
-                             'sure page is available on TJK.org. Url: {1}'.format(error, self.url)
-                logger.info(error_test)
-                raise PageDoesNotExist(error_test)
+            # Try five times, occasionally it might fail
+            try_counter = 5
+            while True:
+                try:
+                    # Get the html of the page that contains the results
+                    self.html = urllib.request.urlopen(self.url).read()
+                    break
+                except urllib.HTTPError:
+                    if try_counter != 0:
+                        time.sleep(1)
+                        try_counter -= 1
+                        continue
 
         else:
             self.html = html
