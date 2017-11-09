@@ -43,7 +43,7 @@ class BasePageScrapper:
                     # Get the html of the page that contains the results
                     self.html = urllib.request.urlopen(self.url).read()
                     break
-                except urllib.HTTPError:
+                except urllib.request.HTTPError:
                     if try_counter != 0:
                         time.sleep(1)
                         try_counter -= 1

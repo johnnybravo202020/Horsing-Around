@@ -54,7 +54,6 @@ horsing_around/tests/migrations/0016_auto_20171030_0353.py
 horsing_around/tests/migrations/0017_auto_20171030_0356.py
 horsing_around/tests/migrations/__init__.py
 horsing_around/tests/web/__init__.py
-horsing_around/tests/web/horse_scrapper.py
 horsing_around/tests/web/tests.py
 horsing_around/util/__init__.py
 horsing_around/util/collections.py

@@ -69,7 +69,7 @@ class BaseRaceDayRowScrapper(BaseRowScrapper):
         horse_name_html = self.get_column(self.horse_name_class_name).find('a')
 
         # first element is the name it self, others are the abbreviations, so we get the first and assign it as name
-        model.horse_name = horse_name_html.contents[0]
+        model.horse_name = str(horse_name_html.contents[0])
 
         # Now get the id of the horse from that url
         model.horse_id = int(self.get_id_from_a(horse_name_html))
@@ -153,7 +153,7 @@ class ResultRowScrapper(BaseRaceDayRowScrapper):
         # Example "KARAHİNDİBAYA (7)"
         horse_name_and_order = result.horse_name.split("(")
 
-        result.horse_name = horse_name_and_order[0]
+        result.horse_name = str(horse_name_and_order[0])
 
         # Example after split: "7)"
         result.order = int(horse_name_and_order[1].replace(')', ''))
