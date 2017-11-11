@@ -1,4 +1,4 @@
-from ..regression import LinearRegression
+from ..regression import LinearRegression, PolynomialRegression
 from ... import City
 
 
@@ -28,9 +28,10 @@ class Race:
         self.forecasts = list()
 
         self.append_forecast(LinearRegression)
+        self.append_forecast(PolynomialRegression)
 
-    def append_forecast(self, machine):
-        machine = LinearRegression(horses=self.horses, distance=self.distance, track_type=self.track_type)
+    def append_forecast(self, mac):
+        machine = mac(horses=self.horses, distance=self.distance, track_type=self.track_type)
         self.forecasts.append(machine.forecast())
 
     def __str__(self):

@@ -123,3 +123,4 @@ class HorseTestData(BaseTestData, ResultMixin):
 class PredictionTestData(models.Model):
     fixture = models.ForeignKey(FixtureTestData, related_name='prediction')
     prediction = models.CharField(max_length=50)
+    predictor = models.CharField(max_length=50)

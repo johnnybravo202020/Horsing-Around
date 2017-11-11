@@ -1,1 +1,1 @@
-from .linear import LinearRegression
+from .regressors import LinearRegression, PolynomialRegression
