@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: django-horsing-around
-Version: 0.2
+Version: 0.2.1
 Summary: Scraps data from the official web site of the horse races run in Turkey, in order to forecast the race results
 Home-page: UNKNOWN
 Author: Ege Aydin
