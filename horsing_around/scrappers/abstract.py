@@ -36,8 +36,8 @@ class BasePageScrapper:
         if not html:
             self.set_url()
 
-            # Try five times, occasionally it might fail
-            try_counter = 5
+            # Try many times, occasionally it might fail
+            try_counter = 20
             while True:
                 try:
                     # Get the html of the page that contains the results
