@@ -34,7 +34,7 @@ class Race:
     def append_forecast(self, mac):
         machine = mac(horses=self.horses, distance=self.distance, track_type=self.track_type)
         self.forecasts.append(machine.forecast())
-        logger.info('{0} is done'.format(machine.title))
+        logger.info('{0} is done'.format(type(machine)))
 
     def __str__(self):
         return "{0} meters, {1}".format(self.distance, self.track_type)
