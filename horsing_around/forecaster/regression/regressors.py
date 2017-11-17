@@ -2,7 +2,6 @@ from sklearn.linear_model import LinearRegression as SKLearnLinearRegression
 from ..data_models.forecast import Prediction, RaceForecast
 from ..data_models.util import TrainingSet
 from sklearn.preprocessing import PolynomialFeatures
-from ... import logger
 
 
 class LinearRegression:

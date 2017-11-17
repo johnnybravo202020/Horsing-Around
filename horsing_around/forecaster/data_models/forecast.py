@@ -14,9 +14,12 @@ class RaceForecast(list):
 
     def __str__(self):
         rtn = ""
-        for prediction in self.forecast:
+        for prediction in self:
             rtn += "{0}|{1}\n".format(prediction.horse_name, prediction.prediction)
         return rtn
+
+    def __repr__(self):
+        return 'asdasddasdsa'
 
 
 class Prediction:

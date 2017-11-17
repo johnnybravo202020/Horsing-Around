@@ -13,7 +13,9 @@ Abbreviations:
 
 ## Brief Summary
 Each day there are races in at least two cities and in those cities there are at least six races run for each city. 
-The way to win the grand prize is to correctly guess the winners of the designated six race, this is called "Pick 6" in horse races. [more info](https://en.wikipedia.org/wiki/Pick_6_(horse_racing)). The goal of Horsing Around is to scrap the fixture and statics of each horse in order to leverage machine learning and deep learning algorithms. 
+The way to win the grand prize is to correctly guess the winners of the designated six race, this is called "Pick 6" 
+in horse races. [more info](https://en.wikipedia.org/wiki/Pick_6_(horse_racing)). The goal of Horsing Around is to 
+scrap the fixture and statistics of each horse in order to leverage machine learning and deep learning algorithms. 
 
 ### Technical Summary
 The entire project planned around Python and [Django](https://www.djangoproject.com). 
@@ -26,57 +28,48 @@ Suggested interpreter is [Anaconda](https://www.anaconda.com) since it comes wit
 * Add the package to your django project by calling the command:
 `-e git://github.com/egeaydin/Horsing-Around.git#egg=horsing_around&subdirectory=django-horsing_around`
 
-### Usage
+### Example
 Import the City enum
 ```python
     from horsing_around import City
 ```
+Import the scrapper that is going to gather the data
 
-The return object will be list containing another list of each race and each race is another list of each horse that 
-run that race. Depending on the used scrapper the horse object will be either model Result or model Fixture
-
-##### Result Scrapper
-Result Scrapper will contain the time and handicap information along with the other information for each horse run 
-during the day.
 ```python
-    # Import the scrapper
-    from horsing_around.scrappers import ResultScrapper
-    
-    # Now scrap
-    races = ResultScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
-```
-You can also supply the date as a datetime object
-```python
-    import datetime
-    
-    races = ResultScrapper.scrap_by_date(City.Bursa, datetime.date(2017, 7, 3)) 
-```
-
-##### Fixture Scrapper
-Fixture Scrapper will contain the information of upcoming races and won't contain any results like time and handicap
-```python
-    # Import the scrapper
     from horsing_around.scrappers import FixtureScrapper
-    
-    # Now scrap
-    races = FixtureScrapper.scrap(City.Bursa, year=2017, month=7, day=3)
 ```
-You can also supply the date as a datetime object
+Import the data model that will forecast the outcome
+
 ```python
-    import datetime
-    
-    races = FixtureScrapper.scrap_by_date(City.Bursa, datetime.date(2017, 7, 3)) 
+    from horsing_around.forecaster import RaceDay
 ```
-##### Collecting the statistics
-Past results of the horses that were or going to be in the race can be collected along with the race information. 
-However,
- since the scrapper needs to visit every page it takes a while depending on how many horses in total was iin the race.
+
+Call the scrap method of the ```FixtureScrapper``` to get the race program of a particular date and city. Also by 
+setting the ```get_past_statistics``` parameter to ```True```, we collect the past results of the horses that are going to run that day.
+
 ```python
-    races_fixture = FixtureScrapper.scrap(City.Istanbul, year=2017, month=10, day=8, get_past_statistics=True)
+fixture = FixtureScrapper.scrap(City.Izmir, 2017, 11, 17, get_past_statistics=True)
 
-    races_results = ResultScrapper.scrap_by_date(City.Ankara, datetime.date(2017, 10, 7), get_past_statistics=True)
-```    
+```
 
+Since the scrapper needs to visit all the horses' pages, it takes sometime to complete. Upon compilation, we create a
+ new RaceDay object and pass the fixture to it. 
+```python
+race_day = RaceDay(fixture)
+```
+
+The `race_day` object contains multiple races and predictions of those races. Currently there are two different 
+prediction techniques used:
+
+ * Linear Regression  
+    ```python
+    linear_forecast = race_day.races[0].forecasts['LinearRegression']
+    ```
+ * Polynomial Regression
+    ```python
+    linear_forecast = race_day.races[0].forecasts['PolynomialRegression']
+    ```
+ 
 ## Road Map
 * Write tests for scrappers(Ongoing)
 * ~~Develop the scrappers(Ongoing)~~

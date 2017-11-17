@@ -1,6 +1,4 @@
 from ..regression import LinearRegression, PolynomialRegression
-from ... import City
-from ... import logger
 
 
 class RaceDay:
@@ -26,15 +24,14 @@ class Race:
         self.track_type = first_horse.track_type
         self.distance = first_horse.distance
         self.id = first_horse.race_id
-        self.forecasts = list()
+        self.forecasts = dict()
 
         self.append_forecast(LinearRegression)
         self.append_forecast(PolynomialRegression)
 
     def append_forecast(self, mac):
         machine = mac(horses=self.horses, distance=self.distance, track_type=self.track_type)
-        self.forecasts.append(machine.forecast())
-        logger.info('{0} is done'.format(type(machine)))
+        self.forecasts[mac.__name__] = machine.forecast()
 
     def __str__(self):
         return "{0} meters, {1}".format(self.distance, self.track_type)
