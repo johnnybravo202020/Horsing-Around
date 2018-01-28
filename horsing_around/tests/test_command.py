@@ -19,8 +19,8 @@ class TestCommand(test):
                            LOGGING=django_settings.LOGGING)
 
         django.setup()
-        from django.core.management import call_command
-        call_command('makemigrations', 'tests')
-        call_command('migrate')
-        call_command('shell')
+        #from django.core.management import call_command
+        #call_command('makemigrations', 'tests')
+        #call_command('migrate')
+        #call_command('shell')
         test.run(self)

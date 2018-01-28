@@ -23,3 +23,7 @@ class TrainingSet:
 
     def validate(self):
         return len(self.x) > 0 and len(self.y) > 0
+
+    def append(self, x, y):
+        self.x.append(x)
+        self.y.append(y)

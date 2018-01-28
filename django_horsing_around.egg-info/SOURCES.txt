@@ -54,6 +54,7 @@ horsing_around/tests/migrations/0015_predictiontestdata.py
 horsing_around/tests/migrations/0016_auto_20171030_0353.py
 horsing_around/tests/migrations/0017_auto_20171030_0356.py
 horsing_around/tests/migrations/0018_predictiontestdata_predictor.py
+horsing_around/tests/migrations/0019_auto_20171121_2208.py
 horsing_around/tests/migrations/__init__.py
 horsing_around/tests/web/__init__.py
 horsing_around/tests/web/tests.py

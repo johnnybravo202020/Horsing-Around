@@ -5,7 +5,7 @@ from .. import City, PageType
 
 
 def save_test_data():
-    scrapper = FixtureScrapper(City.Istanbul, datetime.datetime(2017, 8, 11), get_past_statistics=True)
+    scrapper = FixtureScrapper(City.Adana, datetime.datetime(2017, 11, 21), get_past_statistics=True)
     races = scrapper.get()
     race_day = RaceDayTestData.from_scrapper(scrapper)
     race_day.save()
@@ -17,6 +17,7 @@ def save_test_data():
             fixture.save()
             for p_result in past_results:
                 past_result = HorseTestData.from_actual(p_result, '-1')
+                past_result.testable = False
                 past_result.fixture = fixture
                 past_result.save()
 

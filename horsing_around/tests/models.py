@@ -17,6 +17,7 @@ class BaseTestData(BasePage):
     html_row = models.TextField(null=True)
     scrapper = NotImplemented
     actual_model = NotImplemented
+    testable = models.BooleanField(default=True)
 
     def to_actual(self, *exclude_fields):
         return self.actual_model(**self.get_pure_dict(*exclude_fields))
@@ -90,7 +91,7 @@ class RaceDayTestData(models.Model):
             # Make all past results to list
             _race = []
             for index, result in enumerate(race):
-                actual_result = result.to_actual('race_day_id', '_race_day_cache')
+                actual_result = result.to_actual('race_day_id', '_race_day_cache', 'testable')
                 actual_result.past_results = list(result.past_results.all())
                 _race.append(actual_result)
             races.append(_race)
