@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from ..models import RaceDayTestData
 from ..string_util import turkish_chars_to_ascii_chars
 import datetime
+import unittest
 
 
 class LongWebTest(TestCase):
@@ -32,6 +33,8 @@ class LongWebTest(TestCase):
         self.assert_city(City.Bursa, datetime.date(2017, 7, 3))
 
     def test_if_tjk_is_the_same(self):
+
+        unittest.util._MAX_LENGTH=2000
         """
         We pick a random race day test data and try to match it with the current html. It will scrap both html's
         separately and will try to match them

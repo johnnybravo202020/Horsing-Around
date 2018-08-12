@@ -153,12 +153,14 @@ class BaseRaceDayScrapper(BasePageScrapper):
 
             # The race_detail_div contains some needed information on one of it's children <h3>
             race_info_html = race_detail_div.find("h3", class_="race-config")
-            # The second element contains the two info we need Distance and track type We use stripped_strings here
-            # to eliminate unnecessary blank spaces Ex: 2 Yaşlı İngilizler, 57 kg,   1100 Çim
-            race_info = "".join(race_info_html.stripped_strings)
 
-            # We split from the comma and the we we get
+            # After the first 'a' tag we have a text that has the info we need
+            race_info = race_info_html.find('a').next_sibling
+
+            logger.info(race_info)
+            # We split from the comma and at the last element the we we get
             # Race_info: '   1100\r\n\r\nÇim'
+            logger.info(race_info)
             race_info = race_info.split(",")[-1]
 
             # Split to separate distance and track type
@@ -167,9 +169,8 @@ class BaseRaceDayScrapper(BasePageScrapper):
             # distance is the first element and it has unnecessary space on it, we remove those
             distance = race_info[0].replace(" ", "")
 
-            # track type is the second element and it has unnecessary characters  we split from the first '\r' and
-            # take before
-            track_type = race_info[1].split(r"\r")[0]
+            # track_type is the second element and it has unnecessary space and some characters on it, we remove those
+            track_type = race_info[1].replace(" ", "").replace("\n", "").replace("\r", "")
 
             # Common data for the race is ready, time to get the results get the result of each horse in the table
             rows = rDiv.find("tbody").find_all("tr")
