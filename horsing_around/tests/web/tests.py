@@ -8,6 +8,11 @@ import datetime
 import unittest
 
 
+class ScrapperTest(TestCase):
+    def test_can_run_scrapper(self):
+        FixtureScrapper.scrap(City.Ankara, 2018, 8, 14, get_past_statistics=True)
+
+
 class LongWebTest(TestCase):
     def assert_city(self, city, date):
         '''

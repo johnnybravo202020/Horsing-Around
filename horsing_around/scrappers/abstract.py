@@ -157,10 +157,8 @@ class BaseRaceDayScrapper(BasePageScrapper):
             # After the first 'a' tag we have a text that has the info we need
             race_info = race_info_html.find('a').next_sibling
 
-            logger.info(race_info)
             # We split from the comma and at the last element the we we get
             # Race_info: '   1100\r\n\r\nÇim'
-            logger.info(race_info)
             race_info = race_info.split(",")[-1]
 
             # Split to separate distance and track type

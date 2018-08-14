@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # The above line is for turkish characters in comments, unless it is there a encoding error is raised in the server
 from .. import ManagerType, PageType
+from .. import logger
 import datetime
 
 
@@ -36,14 +37,15 @@ class BaseRowScrapper:
         :param a: The html code of a tag
         :return: id of the supplied a tag
         """
-        # We split from that and take the rest
-        id_ = a['href'].split("Id=")[1]
+        if a:
+            # We split from that and take the rest
+            id_ = a['href'].split("Id=")[1]
 
-        # We split one more time in case of there is more after the id
-        # We take the first part this time
-        id_ = id_.split("&")[0]
+            # We split one more time in case of there is more after the id
+            # We take the first part this time
+            id_ = id_.split("&")[0]
 
-        return id_
+            return id_
 
 
 class BaseRaceDayRowScrapper(BaseRowScrapper):
